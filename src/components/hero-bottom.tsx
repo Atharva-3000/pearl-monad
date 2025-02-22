@@ -4,26 +4,26 @@ import { SpinningText } from "./magicui/spinning-text";
 export default function HeroBottom() {
     return (
         <div className="border-t border-b border-neutral-600 py-12">
-            <div className="max-w-7xl mx-4 px-8">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="max-w-7xl mx-auto px-8">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20">
                     {/* Left Section */}
-                    <div className="flex flex-row items-center lg:items-center gap-6 justify-center">
-                        <FlickeringGrid
-                            squareSize={4}
-                            gridGap={6}
-                            color="#A0055D"
-                            maxOpacity={0.5}
-                            flickerChance={0.3}
-                            height={120}
-                            width={200}
-                        />
-                        <div className="space-y-4 uppercase text-neutral-700 text-xs text-center lg:text-left whitespace-nowrap">
-                            <p>TOTALLY AUTOMATED</p>
-                            <p>WEB3.0 COMPLIENT</p>
-                            <p>EASY ONBOARDING</p>
-                            <p>LLM POWERED</p>
-                        </div>
-                    </div>
+                    <div className="flex flex-row items-center lg:items-center gap-4 justify-start w-full">
+    <FlickeringGrid
+        squareSize={4}
+        gridGap={6}
+        color="#A0055D"
+        maxOpacity={0.5}
+        flickerChance={0.3}
+        height={120}
+        width={200}
+    />
+    <div className="space-y-4 uppercase text-neutral-700 text-xs text-center lg:text-left whitespace-nowrap">
+        <p>TOTALLY AUTOMATED</p>
+        <p>WEB3.0 COMPLIENT</p>
+        <p>EASY ONBOARDING</p>
+        <p>LLM POWERED</p>
+    </div>
+</div>
 
                     {/* Center Section */}
                     <div className="flex flex-col gap-3">
@@ -42,17 +42,17 @@ export default function HeroBottom() {
 
                     {/* Right Section */}
                     <div className="flex items-center gap-4 w-full relative">
-                        <h2 className="text-6xl font-bold tracking-tight">WEB 3.0</h2>
+                        <h2 className="text-6xl font-bold tracking-tight">MONAD</h2>
                         {/* Using ml-auto pushes the spinner to the far right */}
                         <div className="space-y-4 uppercase text-neutral-700 text-xs text-center lg:text-left whitespace-nowrap">
-                            <p>TOTALLY AUTOMATED</p>
+                            {/* <p>TOTALLY AUTOMATED</p>
                             <p>WEB3.0 COMPLIENT</p>
                             <p>EASY ONBOARDING</p>
-                            <p>LLM POWERED</p>
+                            <p>LLM POWERED</p> */}
                         </div>
-                        <div className="ml-auto right-10 absolute">
+                        <div className=" right-12 absolute">
                             <SpinningText className="tracking-normal uppercase" radius={4} fontSize={12}>
-                                MONAD REDEFINED
+                                MONAD • REDEFINED •
                             </SpinningText>
                         </div>
                     </div>

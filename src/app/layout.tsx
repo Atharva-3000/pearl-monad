@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, Ubuntu, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 
+import '@mantine/core/styles.css';
+
+import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -39,11 +44,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" {...mantineHtmlProps}>
+        <head>
+        <ColorSchemeScript />
+      </head>
       <body
         className={`relative w-full overflow-x-hidden ${geistSans.className} ${geistMono.className} ${spaceGrotesk.className} ${ubuntu.className} ${josefinSans.className} antialiased`}
       >
+        <MantineProvider>
         {children}
+        </MantineProvider>
       </body>
     </html>
   );
