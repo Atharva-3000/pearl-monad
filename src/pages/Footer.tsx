@@ -3,7 +3,7 @@ import React from 'react';
 
 const Footer = () => {
     return (
-        <footer className="footer bg-neutral text-monad-berry items-center px-20 pb-4 border-t border-gray-500 pt-3 rounded-t-lg bg-monad-offwhite">
+        <footer id="footer" className="footer bg-neutral text-monad-berry items-center px-20 pb-4 border-t border-gray-500 pt-3 rounded-t-lg bg-monad-offwhite">
   <aside className="grid-flow-col items-center text-md">
     <ScanHeart height={32} width={32}/>
     <p>P. E. A. R. L.  Copyright © {new Date().getFullYear()} - All right reserved</p>

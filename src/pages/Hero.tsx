@@ -1,15 +1,81 @@
-import { Menu, ChevronRight, AudioWaveform, Anchor, AlignVerticalDistributeCenter, Atom, BringToFrontIcon, ScanHeart, Radius } from 'lucide-react';
+"use client";
+
+import { useState } from 'react';
+import {
+    Menu, ChevronRight, AudioWaveform, Anchor,
+    AlignVerticalDistributeCenter, Atom, BringToFrontIcon,
+    ScanHeart, Radius, X
+} from 'lucide-react';
 import pearl from "../../public/pearl_asset_1.jpg";
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Hero() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Variants for the overlay sliding animation
+    const overlayVariants = {
+        hidden: { y: "-100%" },
+        visible: { y: "0%" },
+        exit: { y: "-100%" }
+    };
+
     return (
-        <div className="relative min-h-screen bg-pattern w-full overflow-x-hidden">
-            {/* Main Container */}
+        <div id="home" className="relative min-h-screen bg-pattern w-full overflow-x-hidden">
+            {/* Dropdown Overlay */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        variants={overlayVariants}
+                        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                        className="fixed top-0 left-0 w-full h-full z-50"
+                    >
+                        <div className="absolute inset-0 bg-monad-berry backdrop-blur-xl">
+                            {/* Close Button with Rotation Animation */}
+                            <motion.button
+                                onClick={() => setIsMenuOpen(false)}
+                                initial={{ rotate: 0 }}
+                                animate={{ rotate: 360 }}
+                                exit={{ rotate: -360 }}
+                                transition={{ duration: 0.5, ease: "linear" }}
+                                className="absolute top-8 right-8 p-2"
+                            >
+                                <X className="w-8 h-8 text-monad-offwhite" />
+                            </motion.button>
+
+                            <div className="flex flex-col items-center justify-center h-full gap-8">
+                                {['Home', 'Features', 'Why', 'Tools', 'Footer'].map((link) => (
+                                    <a
+                                        key={link}
+                                        href={`#${link.toLowerCase()}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setIsMenuOpen(false);
+                                            const element = document.getElementById(link.toLowerCase());
+                                            element?.scrollIntoView({
+                                                behavior: 'smooth',
+                                                block: 'start'
+                                            });
+                                        }}
+                                        className="relative text-4xl font-bold text-monad-offwhite transition-transform duration-300 transform hover:scale-110 group"
+                                    >
+                                        <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                                        <span className="relative group-hover:text-black">{link}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Main Content */}
             <div className="flex">
                 {/* Left Half */}
                 <div className="w-1/2 min-h-screen relative">
-                    {/* Navigation */}
                     <nav className="w-full bg-transparent backdrop-blur-sm pt-12 px-12 pb-0 mb-0">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -18,10 +84,12 @@ export default function Hero() {
                             </div>
 
                             <div className="flex items-center gap-6">
-                                <span className="cursor-pointer text-sm">Contact us</span>
-                                <button className="btn-outline border-black text-sm rounded-full ring-neutral-200 flex items-center gap-2 justify-center bg-gray-100">
-                                    <Menu className="w-4 h-4" />
-                                    <span>Menu</span>
+                                <button
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="btn-outline border-black text-sm rounded-full ring-neutral-200 flex items-center gap-2 justify-center bg-gray-100"
+                                >
+                                    <Menu className="w-4 h-4" color='black' />
+                                    <span className='text-monad-black'>Menu</span>
                                 </button>
                             </div>
                         </div>
@@ -34,15 +102,18 @@ export default function Hero() {
                                 <h1 className="text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-monad-purple font-grotesk">
                                     Parallel Enhanced<br />
                                     <span className='text-monad-berry underline'>
-                                        <span className='flex flex-row  items-center gap-2'>
-                                            AI <span><Radius size={45} color='black' className='animate-spin-slow' /></span>
+                                        <span className='flex flex-row items-center gap-2'>
+                                            AI <span>
+                                                <Radius size={45} color='black' className='animate-spin-slow' />
+                                            </span>
                                         </span>
                                     </span>
                                     for Rapid Ledger-processing
                                 </h1>
 
                                 <div className='pt-16'>
-                                    <div className="glass-card-premium relative px-8 py-6 shadow-lg rounded-lg bg-clip-padding bg-opacity-40 border border-gray-200"
+                                    <div
+                                        className="glass-card-premium relative px-8 py-6 shadow-lg rounded-lg bg-clip-padding bg-opacity-40 border border-gray-200"
                                         style={{
                                             background: 'rgba(255, 255, 255, 0.1)',
                                             backdropFilter: 'blur(20px)',
@@ -59,7 +130,10 @@ export default function Hero() {
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="font-semibold text-monad-berry">10+ Tools</span>
-                                                <span className="text-sm text-black">Start using it now<br />Let us take care of it.</span>
+                                                <span className="text-sm text-black">
+                                                    Start using it now<br />
+                                                    Let us take care of it.
+                                                </span>
                                             </div>
                                             <button className="btn-glass ml-4 border border-black bg-monad-black text-white font-medium uppercase flex items-center gap-2 justify-center flex-row hover:text-monad-offwhite hover:bg-monad-purple transition-all duration-200 group py-2.5">
                                                 <span>Begin</span>
@@ -69,42 +143,24 @@ export default function Hero() {
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
 
                 {/* Right Half */}
                 <div className="w-1/2 min-h-screen relative flex items-center justify-center">
-                    <div className="w-[90%] h-[88%] relative rounded-[2rem] overflow-hidden"> {/* Changed from h-[70%] to h-[85%] - less height reduction */}
+                    <div className="w-[90%] h-[88%] relative rounded-[2rem] overflow-hidden">
                         <div className="absolute inset-0">
-                            <div className="absolute inset-0 bg-black opacity-15"></div> {/* Dark overlay */}
+                            <div className="absolute inset-0 bg-black opacity-15"></div>
                             <Image
                                 src={pearl}
                                 alt="Decentralized Intelligence"
                                 className="w-full h-full object-cover"
                             />
                         </div>
-
-                        {/* User Avatar */}
-                        {/* <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                            <Image
-                                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
-                                alt="User Avatar"
-                                width={30}
-                                height={30}
-                                className="rounded-full"
-                            />
-                        </div> */}
                     </div>
-
-                    {/* User Stats Card */}
                 </div>
             </div>
-
-            {/* Bottom Section */}
-
         </div>
     );
 }

@@ -152,6 +152,9 @@
     margin: 0;
     padding: 0;
   }
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @keyframes spin {
@@ -169,8 +172,6 @@
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -178,4 +179,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+[id] {
+  scroll-margin-top: 2rem;
 }

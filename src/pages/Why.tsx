@@ -3,7 +3,7 @@ import { InfiniteMovingCardsDemo } from "@/components/moving-cards";
 import { MarqueeDemoVertical } from "@/components/Marquee";
 export default function Why() {
   return (
-    <div className="min-h-screen bg-pattern w-full py-4">
+    <div id="why" className="min-h-screen bg-pattern w-full py-4">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-left pl-4">
           <h3 className="text-4xl font-bold text-monad-purple">Why P.E.A.R.L?</h3>
@@ -20,7 +20,7 @@ export default function Why() {
           <div className="w-[2px] bg-gradient-to-b from-transparent via-monad-purple/30 to-transparent" />
 
           {/* Right section */}
-          <div className="w-[40%] flex flex-col gap-4 p-3 -mt-24 pt-2 bg-transparent rounded-md">
+          <div id="tools" className="w-[40%] flex flex-col gap-4 p-3 -mt-24 pt-2 bg-transparent rounded-md">
             <div className="mb-8 text-left">
               <h3 className="text-4xl font-bold text-monad-purple text-center">Supported Tools</h3>
             </div>

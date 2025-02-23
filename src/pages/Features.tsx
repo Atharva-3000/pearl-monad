@@ -8,9 +8,9 @@ import {
 
 export default function Features() {
     return (
-        <div className="min-h-screen bg-pattern w-full flex flex-col items-center justify-center px-4 bg-white !important">
+        <div id="features" className="min-h-screen bg-pattern w-full flex flex-col items-center justify-center px-4 bg-white !important">
             <div className="mb-8">
-                <h3 className="text-center text-5xl font-bold text-monad-purple">Features</h3>
+            <h3 className="text-center text-5xl font-bold text-monad-purple">Features</h3>
             </div>
             <div className="grid grid-cols-8 gap-6 max-w-7xl w-full p-4 rounded-md grid-flow-dense">
                 {/* Box 1 - Updated content and color */}
