@@ -95,7 +95,7 @@ export default function Hero() {
                 <div className="flex flex-col px-6 pt-16">
                     {/* Title Section */}
                     <div className="text-center">
-                        <h1 className="text-4xl font-bold tracking-tight leading-tight text-monad-purple font-grotesk">
+                        <h1 className="text-4xl font-bold tracking-tight leading-tight text-monad-purple">
                             Parallel Enhanced<br />
                             <span className='text-monad-berry underline'>
                                 <span className='flex flex-row items-center justify-center gap-2'>
@@ -175,7 +175,7 @@ export default function Hero() {
                     {/* Modified desktop content */}
                     <div className="pt-28 px-12 flex flex-col justify-between h-[95vh]"> {/* Increased from 92vh to 95vh */}
                         <div className="text-left max-w-2xl">
-                            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-monad-purple font-grotesk">
+                            <h1 className="text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-monad-purple">
                                 Parallel Enhanced<br />
                                 <span className='text-monad-berry underline'>
                                     <span className='flex flex-row items-center gap-2'>

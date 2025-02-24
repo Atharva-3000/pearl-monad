@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk, Ubuntu, Josefin_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Ubuntu, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 
 import '@mantine/core/styles.css';
@@ -17,10 +17,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 const ubuntu = Ubuntu({
   weight: ['300', '400', '500', '700'],
@@ -49,7 +45,7 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body
-        className={`relative w-full overflow-x-hidden ${geistSans.className} ${geistMono.className} ${spaceGrotesk.className} ${ubuntu.className} ${josefinSans.className} antialiased`}
+        className={`relative w-full overflow-x-hidden ${geistSans.className} ${geistMono.className} ${ubuntu.className} ${josefinSans.className} antialiased`}
       >
         <MantineProvider>
           {children}

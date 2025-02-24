@@ -130,18 +130,16 @@ module.exports = {
     					transform: 'translateY(calc(-100% - var(--gap)))'
     				}
     			}
+    		},
+    		fontFamily: {
+    			grotesk: ['Space Grotesk', 'sans-serif'],
+    			ubuntu: [
+    				'var(--font-ubuntu)'
+    			],
+    			josefin: [
+    				'var(--font-josefin-sans)'
+    			]
     		}
-    	},
-    	fontFamily: {
-    		grotesk: [
-    			'var(--font-space-grotesk)'
-    		],
-    		ubuntu: [
-    			'var(--font-ubuntu)'
-    		],
-    		josefin: [
-    			'var(--font-josefin-sans)'
-    		]
     	},
     	boxShadow: {
     		'2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
