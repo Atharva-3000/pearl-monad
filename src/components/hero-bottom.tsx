@@ -8,22 +8,22 @@ export default function HeroBottom() {
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20">
                     {/* Left Section */}
                     <div className="flex flex-row items-center lg:items-center gap-4 justify-start w-full">
-    <FlickeringGrid
-        squareSize={4}
-        gridGap={6}
-        color="#A0055D"
-        maxOpacity={0.5}
-        flickerChance={0.3}
-        height={120}
-        width={200}
-    />
-    <div className="space-y-4 uppercase text-neutral-700 text-xs text-center lg:text-left whitespace-nowrap">
-        <p>TOTALLY AUTOMATED</p>
-        <p>WEB3.0 COMPLIENT</p>
-        <p>EASY ONBOARDING</p>
-        <p>LLM POWERED</p>
-    </div>
-</div>
+                        <FlickeringGrid
+                            squareSize={4}
+                            gridGap={6}
+                            color="#A0055D"
+                            maxOpacity={0.5}
+                            flickerChance={0.3}
+                            height={120}
+                            width={200}
+                        />
+                        <div className="space-y-4 uppercase text-neutral-700 text-xs text-center lg:text-left whitespace-nowrap">
+                            <p>TOTALLY AUTOMATED</p>
+                            <p>WEB3.0 COMPLIENT</p>
+                            <p>EASY ONBOARDING</p>
+                            <p>LLM POWERED</p>
+                        </div>
+                    </div>
 
                     {/* Center Section */}
                     <div className="flex flex-col gap-3">
