@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Ubuntu, Josefin_Sans } from "next/font/google";
 import "./globals.css";
-
+import {Toaster} from "react-hot-toast"
 import '@mantine/core/styles.css';
-
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import { PrivyClientProvider } from "@/providers/PrivyProvider";
 
 
 const geistSans = Geist({
@@ -47,9 +47,12 @@ export default function RootLayout({
       <body
         className={`relative w-full overflow-x-hidden ${geistSans.className} ${geistMono.className} ${ubuntu.className} ${josefinSans.className} antialiased`}
       >
-        <MantineProvider>
-          {children}
-        </MantineProvider>
+        <PrivyClientProvider>
+          <MantineProvider>
+            {children}
+          </MantineProvider>
+        </PrivyClientProvider>
+        <Toaster/>
       </body>
     </html>
   );

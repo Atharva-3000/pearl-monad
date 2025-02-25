@@ -12,6 +12,11 @@
 
 # testing
 /coverage
+**/*.test.*
+**/__tests__/*
+**/__mocks__/*
+/src/lib/wallet/test.ts
+/src/app/api/wallet-test/*
 
 # next.js
 /.next/
@@ -40,6 +45,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# IDE
 .vscode
-.next
+.idea
+*.sublime-*
+*.swp
 
+# Test components
+/src/components/WalletTester*
+/src/components/**/*Test*.tsx
+/src/components/**/*test*.tsx
+
+# Test routes and API endpoints
+/src/app/api/**/*test*
+/src/app/api/**/*Test*
