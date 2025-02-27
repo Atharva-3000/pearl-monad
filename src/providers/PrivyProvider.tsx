@@ -16,10 +16,7 @@ export function PrivyClientProvider({ children }: { children: React.ReactNode })
                 },
                 embeddedWallets: {
                     ethereum: {
-                        createOnLogin: 'users-without-wallets', // defaults to 'off'
-                    },
-                    solana: {
-                        createOnLogin: 'users-without-wallets', // defaults to 'off'
+                        createOnLogin: 'users-without-wallets', 
                     },
                 },
             }}
