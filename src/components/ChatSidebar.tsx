@@ -75,15 +75,18 @@ export function ChatSidebar() {
     // Add new chat to the list immediately
     const newChat: Chat = {
       id: chatId,
-      title: chatId, // Initial title is the chatId
+      title: "New Chat",
       updatedAt: new Date()
     };
 
-    setChats(prev => [newChat, ...prev]); // Add to beginning of list
+    setChats(prev => [newChat, ...prev]);
+    
+    // Navigate first (before API call)
+    router.push(`/chat/${chatId}`);
 
     try {
-      // Create chat in database
-      const response = await fetch('/api/chats', {
+      // Create chat in database after navigation
+      await fetch('/api/chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -91,17 +94,11 @@ export function ChatSidebar() {
         body: JSON.stringify({
           chatId,
           userId: user?.id,
-          title: chatId
+          title: "New Chat"
         })
       });
-
-      if (!response.ok) throw new Error('Failed to create chat');
-
-      // Navigate to new chat
-      router.push(`/chat/${chatId}`);
     } catch (error) {
-      // Remove chat from list if creation failed
-      setChats(prev => prev.filter(chat => chat.id !== chatId));
+      console.error('Failed to create chat:', error);
       toast.error('Failed to create new chat');
     }
   };
@@ -132,59 +129,73 @@ export function ChatSidebar() {
 
   const handleDeleteChat = async (e: React.MouseEvent, chatId: string) => {
     e.stopPropagation();
+    e.preventDefault();
     setDeletingChatId(chatId);
 
+    // Check if this is the last chat before removing it
+    const isLastChat = chats.length === 1;
+    const isActiveChatBeingDeleted = params?.chatId === chatId;
+    let newChatId;
+
     try {
-      const response = await fetch(`/api/chats/${chatId}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) throw new Error('Failed to delete chat');
-
-      // Check if this is the last chat before removing it
-      const isLastChat = chats.length === 1;
-
-      // Remove the chat from the list
-      setChats(prev => prev.filter(chat => chat.id !== chatId));
-
-      // If this was the active chat
-      if (params?.chatId === chatId) {
-        // Generate a new chat ID
-        const newChatId = generateChatId();
-
-        // If this was the last chat, create a new one immediately
+      // Update UI first for responsiveness
+      if (!isActiveChatBeingDeleted) {
+        setChats(prev => prev.filter(chat => chat.id !== chatId));
+      }
+      
+      // If we're deleting the active chat, prepare navigation
+      if (isActiveChatBeingDeleted) {
         if (isLastChat) {
-          // Create a new placeholder chat in the UI first
+          // Create a new chat if this is the last one
+          newChatId = generateChatId();
           const newChat = {
             id: newChatId,
             title: 'New Chat',
             updatedAt: new Date()
           };
-
-          // Add the new chat to the list
+          
           setChats([newChat]);
-
-          // Create the chat in the database
-          await fetch('/api/chats', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              chatId: newChatId,
-              userId: user?.id,
-              title: 'New Chat'
-            })
-          });
+          
+          // Navigate immediately
+          router.push(`/chat/${newChatId}`);
+        } else {
+          // Find another chat to navigate to
+          const nextChat = chats.find(chat => chat.id !== chatId);
+          if (nextChat) {
+            router.push(`/chat/${nextChat.id}`);
+          }
         }
+      }
 
-        // Navigate to the new chat
-        router.push(`/chat/${newChatId}`);
+      // Delete from database
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Failed to delete chat');
+      
+      // If deleting active last chat, create a new one
+      if (isLastChat && isActiveChatBeingDeleted && newChatId) {
+        await fetch('/api/chats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chatId: newChatId,
+            userId: user?.id,
+            title: 'New Chat'
+          })
+        });
       }
 
       toast.success('Chat deleted');
     } catch (error) {
+      console.error('Error deleting chat:', error);
       toast.error('Failed to delete chat');
+      
+      // Refresh the chat list if there was an error
+      fetchChats();
     } finally {
       setDeletingChatId(null);
     }

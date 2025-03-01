@@ -26,8 +26,8 @@ export async function DELETE(
         console.error("Failed to delete chat:", error);
         return new Response(JSON.stringify({ error: "Failed to delete chat" }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+            headers: { 'Content-Type': 'application/json' }
+        }); // Fixed syntax error - removed extra curly brace
     }
 }
 

@@ -61,10 +61,12 @@ export default function ChatInterface() {
         e.preventDefault();
         if (!input.trim() || !user?.id) return;
 
+        // Only add user message initially
         const userMessage: Message = { role: 'user', content: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
+        
         setInput('');
-        setIsLoading(true);
+        setIsLoading(true); // This will show the loader
 
         try {
             const response = await fetch('/api/chat', {
@@ -83,35 +85,52 @@ export default function ChatInterface() {
             const reader = response.body?.getReader();
             if (!reader) throw new Error('No reader available');
 
-            let aiMessage: Message = { role: 'assistant', content: '', sender: 'assistant' };
-            setMessages(prev => [...prev, aiMessage]);
-
+            let decoder = new TextDecoder();
             let buffer = '';
+            let fullContent = '';
+            let assistantMessageAdded = false;
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
-                buffer += new TextDecoder().decode(value, { stream: true });
-
+                
+                buffer += decoder.decode(value, { stream: true });
+                
+                // Process complete events in buffer
                 while (buffer.includes('\n\n')) {
-                    const eventEndIndex = buffer.indexOf('\n\n');
-                    const eventData = buffer.slice(eventEndIndex + 2);
-
-                    const lines = eventData.split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const content = line.slice(6).trim();
-                            if (content === '[DONE]') continue;
-
-                            setMessages(prev => {
-                                const newMessages = [...prev];
-                                const lastMessage = newMessages[newMessages.length - 1];
-                                if (lastMessage.role === 'assistant') {
-                                    lastMessage.content = (lastMessage.content + content).trim();
+                    const eventEnd = buffer.indexOf('\n\n');
+                    const event = buffer.slice(0, eventEnd);
+                    buffer = buffer.slice(eventEnd + 2);
+                    
+                    if (event.startsWith('data: ')) {
+                        const data = event.slice(6);
+                        if (data === '[DONE]') continue;
+                        
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed.content) {
+                                const newDelta = parsed.content;
+                                
+                                if (!assistantMessageAdded) {
+                                    // Add the assistant message only when we get the first content
+                                    setMessages(prev => [
+                                        ...prev,
+                                        { role: 'assistant', content: newDelta, sender: 'assistant' }
+                                    ]);
+                                    assistantMessageAdded = true;
+                                    fullContent = newDelta;
+                                } else {
+                                    // Update the assistant message with accumulated content
+                                    fullContent = parsed.content;
+                                    setMessages(prev => {
+                                        const newMessages = [...prev];
+                                        newMessages[newMessages.length - 1].content = fullContent;
+                                        return newMessages;
+                                    });
                                 }
-                                return newMessages;
-                            });
+                            }
+                        } catch (e) {
+                            console.error("Error parsing SSE message:", e);
                         }
                     }
                 }

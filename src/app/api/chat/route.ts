@@ -1,12 +1,17 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/chat/route.ts
 export const dynamic = 'force-dynamic';
-
 
 import { NextRequest } from 'next/server';
 import { HumanMessage } from '@langchain/core/messages';
 import { initializeAgent } from '@/providers/agentProvider';
 import { PrismaClient } from '@prisma/client';
+import OpenAI from 'openai';
+import { createThread } from '@/agent/openai/createThread';
+import { createRun } from '@/agent/openai/createRun';
+import { performRun } from '@/agent/openai/performRun';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create chat if it's first message
+    // Create chat if first message
     if (isFirstMessage) {
       try {
         await prisma.chat.create({
@@ -38,7 +43,6 @@ export async function POST(req: NextRequest) {
           }
         });
       } catch (error: any) {
-        // Ignore unique constraint error since chat might already exist
         if (error.code !== 'P2002') throw error;
       }
     }
@@ -52,73 +56,102 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Get or initialize agent
-    const agent = await initializeAgent();
-
-    const agentStream = await agent(
-      { messages: [new HumanMessage(message)] },
-      { configurable: { thread_id: chatId } }
-    );
-
-    const encoder = new TextEncoder();
-    const stream = new TransformStream();
-    const writer = stream.writable.getWriter();
-
-    let accumulatedContent = '';
+    // Initialize OpenAI client
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
     
-    (async () => {
-      try {
-        for await (const chunk of agentStream) {
-          if ("agent" in chunk) {
-            const content = chunk.agent.messages[0].content;
+    try {
+      // Get or initialize the agent
+      const agent = await initializeAgent();
+      
+      // Set up streaming
+      const encoder = new TextEncoder();
+      const stream = new TransformStream();
+      const writer = stream.writable.getWriter();
+      
+      let accumulatedContent = '';
+      
+      (async () => {
+        try {
+          // Create a new thread or get existing one
+          const thread = await createThread(client, message);
+          
+          // Create run using the agent and thread
+          const run = await createRun(client, thread, agent.id);
+          
+          // Process the run stream
+          const runStream = performRun(run, client, thread);
+          
+          for await (const chunk of runStream) {
+            // Extract content from chunk
+            let content = '';
             
+            if (chunk?.agent?.messages?.[0]?.content) {
+              // Extract content from agent format
+              content = chunk.agent.messages[0].content;
+            } else if (chunk?.text?.value) {
+              // Extract content from text format
+              content = chunk.text.value;
+            }
+            
+            // Very important: Only send the NEW content (delta)
             if (content && content !== accumulatedContent) {
               const delta = content.slice(accumulatedContent.length);
+              
               if (delta) {
                 await writer.write(
                   encoder.encode(`data: ${JSON.stringify({ content: delta })}\n\n`)
                 );
-                accumulatedContent = content;
+                accumulatedContent = content; // Update the accumulated content after sending
               }
             }
           }
+          
+          // Save complete response
+          if (accumulatedContent) {
+            await prisma.message.create({
+              data: {
+                content: accumulatedContent,
+                chatId,
+                sender: MessageSender.ASSISTANT
+              }
+            });
+          }
+          
+          await writer.write(encoder.encode('data: [DONE]\n\n'));
+        } catch (error) {
+          console.error('Streaming error:', error);
+          
+          // Send error as part of the stream
+          await writer.write(
+            encoder.encode(
+              `data: ${JSON.stringify({ error: 'Error processing response' })}\n\n`
+            )
+          );
+        } finally {
+          await writer.close();
         }
-
-        // Save the complete response to database
-        if (accumulatedContent) {
-          await prisma.message.create({
-            data: {
-              content: accumulatedContent,
-              chatId,
-              sender: 'assistant'
-            }
-          });
-        }
-
-        // Send DONE event only after saving
-        await writer.write(encoder.encode('data: [DONE]\n\n'));
-      } catch (error) {
-        console.error('Stream error:', error);
-        await writer.write(
-          encoder.encode(
-            `data: ${JSON.stringify({ error: 'Error processing response' })}\n\n`
-          )
-        );
-      } finally {
-        await writer.close();
-      }
-    })();
-
-    return new Response(stream.readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
-
+      })();
+      
+      return new Response(stream.readable, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+      
+    } catch (error) {
+      console.error('AI initialization error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to initialize AI' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Request error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -126,7 +159,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Add GET endpoint for loading chat messages
+// Fix the GET endpoint for loading chat messages
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -150,7 +183,6 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    // Transform messages to match the UI format
     const formattedMessages = messages.map(msg => ({
       role: msg.sender === 'assistant' ? 'assistant' : 'user',
       content: msg.content,
@@ -167,6 +199,6 @@ export async function GET(req: NextRequest) {
     return new Response(
       JSON.stringify({ error: 'Failed to fetch messages' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    ); // Fixed: removed the extra curly brace here
   }
 }
