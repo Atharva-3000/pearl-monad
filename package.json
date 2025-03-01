@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:agent": "node --loader ts-node/esm ./src/scripts/agentWalletTest.ts",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "npx prisma generate && npx prisma migrate deploy && next build"
   },
   "dependencies": {
     "@langchain/core": "^0.3.40",
@@ -53,6 +53,7 @@
     "postcss": "^8.5.3",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
+    "prisma": "^6.4.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
