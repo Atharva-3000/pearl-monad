@@ -3,7 +3,12 @@ import { Thread } from "openai/resources/beta/threads/threads";
 import { Run } from "openai/resources/beta/threads/runs/runs";
 import { handleRunToolCalls } from "./handleRunToolCalls";
 
-export async function* performRun(run: Run, client: OpenAI, thread: Thread) {
+// Define a type for the chunks that can be yielded
+type StreamChunk = 
+  | { agent: { messages: { content: string }[] } }
+  | { text: { value: string } };
+
+export async function* performRun(run: Run, client: OpenAI, thread: Thread): AsyncGenerator<StreamChunk> {
   console.log("Performing run: ", run.id);
 
   while (run.status === "requires_action" || run.status === "in_progress" || run.status === "queued") {

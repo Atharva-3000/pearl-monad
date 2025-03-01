@@ -5,10 +5,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, PenSquare, Plus, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { generateChatId } from "@/lib/utils";
-
 import { toast } from "react-hot-toast";
 import { usePrivy } from "@privy-io/react-auth";
 import { SyncLoader, FadeLoader } from "react-spinners";
@@ -32,42 +31,41 @@ export function ChatSidebar() {
   const { user } = usePrivy();
   const params = useParams();
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      if (!user?.id) return;
+  // Extract fetchChats to component level so it can be called from multiple places
+  const fetchChats = useCallback(async () => {
+    if (!user?.id) return;
 
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/chats?userId=${user.id}`);
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/chats?userId=${user.id}`);
+      if (!response.ok) throw new Error('Failed to fetch chats');
 
-        if (!response.ok) throw new Error('Failed to fetch chats');
+      const data = await response.json();
 
-        const data = await response.json();
-
-        // If we have an active chat ID but it's not in the returned chats,
-        // this might be a newly created chat that hasn't been saved yet
-        if (params?.chatId && data.findIndex((c: { id: string | string[]; }) => c.id === params.chatId) === -1) {
-          // Add a temporary entry for the current chat
-          const currentChat = {
-            id: params.chatId,
-            title: 'New Chat',
-            updatedAt: new Date()
-          };
-          data.unshift(currentChat);
-        }
-
-        setChats(data);
-
-      } catch (error) {
-        console.error('Error fetching chats:', error);
-        toast.error('Failed to load chat history');
-      } finally {
-        setLoading(false);
+      // If we have an active chat ID but it's not in the returned chats,
+      // this might be a newly created chat that hasn't been saved yet
+      if (params?.chatId && data.findIndex((c: { id: string | string[]; }) => c.id === params.chatId) === -1) {
+        // Add a temporary entry for the current chat
+        const currentChat = {
+          id: params.chatId,
+          title: 'New Chat',
+          updatedAt: new Date()
+        };
+        data.unshift(currentChat);
       }
-    };
 
-    fetchChats();
+      setChats(data);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+      toast.error('Failed to load chat history');
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id, params?.chatId]);
+
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
   const handleNewChat = async () => {
     const chatId = generateChatId();
@@ -130,6 +128,7 @@ export function ChatSidebar() {
   const handleDeleteChat = async (e: React.MouseEvent, chatId: string) => {
     e.stopPropagation();
     e.preventDefault();
+    
     setDeletingChatId(chatId);
 
     // Check if this is the last chat before removing it
@@ -194,7 +193,7 @@ export function ChatSidebar() {
       console.error('Error deleting chat:', error);
       toast.error('Failed to delete chat');
       
-      // Refresh the chat list if there was an error
+      // Now fetchChats is properly in scope
       fetchChats();
     } finally {
       setDeletingChatId(null);

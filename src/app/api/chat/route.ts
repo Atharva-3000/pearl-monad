@@ -87,10 +87,11 @@ export async function POST(req: NextRequest) {
             // Extract content from chunk
             let content = '';
             
-            if (chunk?.agent?.messages?.[0]?.content) {
+            // Use proper type guards to check the shape of the chunk
+            if ('agent' in chunk && chunk.agent?.messages?.[0]?.content) {
               // Extract content from agent format
               content = chunk.agent.messages[0].content;
-            } else if (chunk?.text?.value) {
+            } else if ('text' in chunk && chunk.text?.value) {
               // Extract content from text format
               content = chunk.text.value;
             }
