@@ -4,7 +4,7 @@ import { generateChatId } from '@/lib/utils';
 import { usePrivy } from '@privy-io/react-auth';
 import { AlignVerticalDistributeCenter, Anchor, Atom, AudioWaveform, BringToFrontIcon, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 
 type ToolsCardProps = {
@@ -17,6 +17,7 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
   const disableLogin = !ready || (ready && authenticated);
   const router = useRouter();
   const [justLoggedIn, setJustLoggedIn] = useState(false);
+  const userCreatedRef = useRef(false);
 
   const handleStartChat = async () => {
     if (!user?.id) {
@@ -52,11 +53,14 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
   };
 
   useEffect(() => {
-    if (authenticated && user?.id) {
+    if (authenticated && user?.id && !userCreatedRef.current) {
       toast.success('Logged in Successfully!', {
         id: 'auth-success',
         duration: 2000
       });
+
+      // Mark that we've started the user creation process
+      userCreatedRef.current = true;
 
       // Create or upsert the user record in your database
       fetch('/api/createUser', {
@@ -78,6 +82,8 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
         .catch(err => {
           console.error('Error creating user:', err);
           toast.error('Failed to initialize user data');
+          // Reset the ref if there's an error so we can try again
+          userCreatedRef.current = false;
         });
 
       // If it's the first successful login and we want to redirect to chat
@@ -87,7 +93,7 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
         router.push(`/chat/${chatId}`);
       }
     }
-  }, [authenticated, user, justLoggedIn, router]);
+  }, [authenticated, user?.id, justLoggedIn, router]);
 
   const handleLogin = () => {
     setJustLoggedIn(true);

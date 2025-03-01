@@ -21,6 +21,14 @@ enum MessageSender {
   ASSISTANT = 'assistant'
 }
 
+// Add a Message type at the top of the file
+interface Message {
+  id: string;
+  content: string;
+  sender: string;
+  timestamp: Date;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { message, userId, chatId, isFirstMessage } = await req.json();
@@ -184,7 +192,7 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = messages.map((msg: Message) => ({
       role: msg.sender === 'assistant' ? 'assistant' : 'user',
       content: msg.content,
       sender: msg.sender,
