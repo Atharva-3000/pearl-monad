@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:agent": "node --loader ts-node/esm ./src/scripts/agentWalletTest.ts"
+    "test:agent": "node --loader ts-node/esm ./src/scripts/agentWalletTest.ts",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@langchain/core": "^0.3.40",
