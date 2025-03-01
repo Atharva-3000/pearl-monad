@@ -4,6 +4,10 @@ const config = {
     tailwindcss: {},
   },
   'postcss-preset-mantine': {},
+  'postcss-preset-mantine': {},
+  'postcss-simple-vars': {},
+  tailwindcss: {},
+  autoprefixer: {},
   'postcss-simple-vars': {
     variables: {
       'mantine-breakpoint-xs': '36em',
