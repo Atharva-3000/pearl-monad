@@ -12,10 +12,12 @@ export function useWalletData() {
   useEffect(() => {
     async function fetchPrivateKey() {
       if (!user?.id) {
+        console.log("🔑 No user ID found, skipping private key fetch");
         setLoading(false);
         return;
       }
 
+      console.log("👤 Fetching private key for user:", user.id);
       try {
         const response = await fetch('/api/wallet', {
           method: 'POST',
@@ -28,9 +30,10 @@ export function useWalletData() {
         }
 
         const data = await response.json();
+        console.log("✅ Private key fetched successfully");
         setPrivateKey(data.privateKey);
       } catch (err) {
-        console.error(err);
+        console.error("❌ Error fetching private key:", err);
         setError(err instanceof Error ? err.message : 'Failed to load wallet data');
       } finally {
         setLoading(false);
@@ -43,7 +46,6 @@ export function useWalletData() {
   return { privateKey, loading, error };
 }
 
-// Export a helper function to get just the private key in a component
 export function usePrivateKey(): string | null {
   const { privateKey } = useWalletData();
   return privateKey;

@@ -3,9 +3,6 @@
 import "dotenv/config";
 import OpenAI from "openai";
 import { createAssistant } from "@/agent/openai/createAssistant";
-import { createThread } from "@/agent/openai/createThread";
-import { createRun } from "@/agent/openai/createRun";
-import { performRun } from "@/agent/openai/performRun";
 
 const client = new OpenAI();
 

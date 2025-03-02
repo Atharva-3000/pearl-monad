@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Use upsert to create or update the user
     const user = await prisma.user.upsert({
       where: { id: did },
-      update: { 
+    update: { 
         email: email || undefined // Only update email if provided
       },
       create: {

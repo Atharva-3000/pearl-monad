@@ -6,7 +6,8 @@ import { tools } from "../tools/allTools";
 export async function handleRunToolCalls(
   run: Run,
   client: OpenAI,
-  thread: Thread
+  thread: Thread,
+  context?: { privateKey?: string }
 ): Promise<Run> {
   console.log(`Handling tool calls for run ${run.id}`);
 
@@ -24,7 +25,7 @@ export async function handleRunToolCalls(
 
       try {
         const args = JSON.parse(tool.function.arguments);
-        const output = await toolConfig.handler(args);
+        const output = await toolConfig.handler({ ...args, ...context });
         return {
           tool_call_id: tool.id,
           output: String(output),

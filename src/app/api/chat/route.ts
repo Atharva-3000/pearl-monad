@@ -12,6 +12,8 @@ import OpenAI from 'openai';
 import { createThread } from '@/agent/openai/createThread';
 import { createRun } from '@/agent/openai/createRun';
 import { performRun } from '@/agent/openai/performRun';
+import { getPrivateKeyForUser } from '@/lib/auth/session';
+
 
 const prisma = new PrismaClient();
 
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
+    const privateKey = await getPrivateKeyForUser(userId);
     // Create chat if first message
     if (isFirstMessage) {
       try {
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
           const run = await createRun(client, thread, agent.id);
           
           // Process the run stream
-          const runStream = performRun(run, client, thread);
+          const runStream = performRun(run, client, thread, privateKey);
           
           for await (const chunk of runStream) {
             // Extract content from chunk

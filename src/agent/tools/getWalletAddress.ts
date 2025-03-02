@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Address } from "viem";
-import { createViemWalletClient } from "../viem/createViemWalletClient";
+import { getServerWalletAddress } from "../viem/serverWalletUtils";
 import { ToolConfig } from "./allTools";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface GetWalletAddressArgs { }
-
-export const getWalletAddressTool: ToolConfig = {
+export const getWalletAddressTool: ToolConfig<{ privateKey?: string }> = {
     definition: {
         type: 'function',
         function: {
@@ -19,14 +14,9 @@ export const getWalletAddressTool: ToolConfig = {
             }
         }
     },
-    handler: async () => {
-        // Your implementation here
-        return "wallet_address";
+    handler: async (args: { privateKey?: string }) => {
+        const privateKey = args.privateKey;
+        if (!privateKey) throw new Error("Authentication required");
+        return getServerWalletAddress(privateKey);
     }
 };
-
-async function getWalletAddress(): Promise<Address> {
-    const walletClient = createViemWalletClient();
-    const [address] = await walletClient.getAddresses();
-    return address;
-}
