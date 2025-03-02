@@ -6,7 +6,7 @@ export const getWalletAddressTool: ToolConfig<{ privateKey?: string }> = {
         type: 'function',
         function: {
             name: 'get_wallet_address',
-            description: 'Get the wallet address',
+            description: 'Get the current user wallet address',
             parameters: {
                 type: 'object',
                 properties: {},
@@ -15,8 +15,15 @@ export const getWalletAddressTool: ToolConfig<{ privateKey?: string }> = {
         }
     },
     handler: async (args: { privateKey?: string }) => {
-        const privateKey = args.privateKey;
-        if (!privateKey) throw new Error("Authentication required");
-        return getServerWalletAddress(privateKey);
+        // Add timing logs
+        console.time("wallet_address_tool");
+        try {
+            const privateKey = args.privateKey;
+            if (!privateKey) throw new Error("Authentication required");
+            const address = getServerWalletAddress(privateKey);
+            return address;
+        } finally {
+            console.timeEnd("wallet_address_tool");
+        }
     }
 };

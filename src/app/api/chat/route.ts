@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/api/chat/route.ts
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge'; // Add this line to use Edge Runtime
 
 import { NextRequest } from 'next/server';
 import { HumanMessage } from '@langchain/core/messages';
