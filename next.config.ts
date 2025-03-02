@@ -16,6 +16,9 @@ const nextConfig = {
         responseLimit: false,
       },
     },
+    vercel: {
+        timeoutDuration: 60
+      },
   }
   
   module.exports = nextConfig 
