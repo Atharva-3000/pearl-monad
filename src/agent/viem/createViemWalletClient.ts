@@ -6,18 +6,8 @@ import { eip712WalletActions } from "viem/zksync";
 // Global variable to store the wallet client
 let globalWalletClient: ReturnType<typeof createWalletClient> | null = null;
 
-// Add cache for private keys with expiration
-const privateKeyCache = new Map<string, { key: string, timestamp: number }>();
-const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
-
 // New function to fetch private key without hooks
 async function fetchPrivateKey(did: string): Promise<string | null> {
-    // Check cache first
-    const cached = privateKeyCache.get(did);
-    if (cached && Date.now() - cached.timestamp < CACHE_EXPIRY) {
-        return cached.key;
-    }
-
     try {
         const response = await fetch('/api/wallet', {
             method: 'POST',
@@ -30,11 +20,6 @@ async function fetchPrivateKey(did: string): Promise<string | null> {
         }
 
         const data = await response.json();
-        // Cache the result
-        privateKeyCache.set(did, {
-            key: data.privateKey,
-            timestamp: Date.now()
-        });
         return data.privateKey;
     } catch (error) {
         console.error("Error fetching private key:", error);

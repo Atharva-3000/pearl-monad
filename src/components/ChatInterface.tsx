@@ -76,11 +76,10 @@ export default function ChatInterface() {
         setInput('');
         setIsLoading(true);
 
-        try {
-            const controller = new AbortController();
-            // Set a timeout of 55 seconds
-            const timeoutId = setTimeout(() => controller.abort(), 55000);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 55000);
 
+        try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -96,7 +95,8 @@ export default function ChatInterface() {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                throw new Error(await response.text());
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Request failed');
             }
 
             const reader = response.body?.getReader();
@@ -154,7 +154,11 @@ export default function ChatInterface() {
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error(error instanceof Error ? error.message : 'Request timed out. Please try again.');
+            toast.error(
+                error instanceof Error 
+                    ? error.message 
+                    : 'Request timed out. Please try again with a shorter message.'
+            );
         } finally {
             setIsLoading(false);
         }
