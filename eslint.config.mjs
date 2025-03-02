@@ -19,6 +19,13 @@ const eslintConfig = [
     },
     rules: {
       'react-hooks/exhaustive-deps': 'warn',
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }],
+      "react-hooks/exhaustive-deps": "warn",
+      "prefer-const": "warn",
     },
   },
 ];
