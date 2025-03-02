@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import { usePrivy } from "@privy-io/react-auth";
 import { useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { initializeWalletClient } from "../agent/viem/createViemWalletClient";
 
 interface Message {
     role: "user" | "assistant";
@@ -56,6 +57,15 @@ export default function ChatInterface() {
         };
         loadMessages();
     }, [params?.chatId]);
+
+    useEffect(() => {
+        async function initWallet() {
+            if (user?.id) {
+                await initializeWalletClient(user.id);
+            }
+        }
+        initWallet();
+    }, [user?.id]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

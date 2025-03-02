@@ -2,15 +2,38 @@ import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, http } from "viem";
 import { monadTestnet } from "viem/chains";
 import { eip712WalletActions } from "viem/zksync";
-import { usePrivateKey } from "../wallet-helper/walletDataLoader";
 
 // Global variable to store the wallet client
 let globalWalletClient: ReturnType<typeof createWalletClient> | null = null;
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-export function initializeWalletClient(): ReturnType<typeof createWalletClient> | null {
-    const privateKey = usePrivateKey();
-// eslint-disable-next-line react-hooks/rules-of-hooks
+// New function to fetch private key without hooks
+async function fetchPrivateKey(did: string): Promise<string | null> {
+    try {
+        const response = await fetch('/api/wallet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ did })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch private key');
+        }
+
+        const data = await response.json();
+        return data.privateKey;
+    } catch (error) {
+        console.error("Error fetching private key:", error);
+        return null;
+    }
+}
+
+export async function initializeWalletClient(did: string): Promise<ReturnType<typeof createWalletClient> | null> {
+    // If client already exists, return it
+    if (globalWalletClient) {
+        return globalWalletClient;
+    }
+
+    const privateKey = await fetchPrivateKey(did);
     if (!privateKey) {
         console.log("⚠️ No private key available, wallet client creation skipped");
         return null;
@@ -31,17 +54,12 @@ export function initializeWalletClient(): ReturnType<typeof createWalletClient> 
 }
 
 export function useViemWalletClient() {
-    // If global wallet client hasn't been initialized, try to initialize it
-    if (!globalWalletClient) {
-        initializeWalletClient();
-    }
     return globalWalletClient;
 }
 
 export function getWalletAddress() {
-    const walletClient = useViemWalletClient();
-    if (!walletClient) {
+    if (!globalWalletClient) {
         throw new Error("No wallet client available");
     }
-    return walletClient.account?.address;
+    return globalWalletClient.account?.address;
 }

@@ -12,12 +12,7 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    files: ['src/agent/viem/createViemWalletClient.ts'],
-    rules: {
-      'react-hooks/rules-of-hooks': 'off',
-    },
-  },
+
   {
     plugins: {
       'react-hooks': eslintPluginReactHooks,
