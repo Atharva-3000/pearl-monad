@@ -2,8 +2,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { SyncLoader } from "react-spinners";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { BrainCircuit, Send } from "lucide-react";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { ScanHeart, Send, UserCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { usePrivy } from "@privy-io/react-auth";
 import { useParams } from "next/navigation";
@@ -166,7 +166,7 @@ export default function ChatInterface() {
 
     // Keep the existing return statement as is
     return (
-        <div className="h-[calc(100vh-6rem)] bg-zinc-950 border border-zinc-800 backdrop-blur-sm rounded-t-lg overflow-hidden flex flex-col">
+        <div className="h-[calc(100vh-6rem)] bg-monad-offwhite border border-zinc-800 backdrop-blur-sm rounded-t-lg overflow-hidden flex flex-col">
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
                 {loadingChat ? (
@@ -175,10 +175,10 @@ export default function ChatInterface() {
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                        <BrainCircuit className="h-16 w-16 text-orange-500 mb-2" />
-                        <h3 className="text-xl font-medium text-zinc-200">Start a new conversation</h3>
+                        <ScanHeart className="h-16 w-16 text-monad-berry mb-2" />
+                        <h3 className="text-xl font-medium text-zinc-600">Start a new conversation</h3>
                         <p className="text-sm text-zinc-400 mt-1 max-w-sm">
-                            Ask anything or use one of the examples below to get started.
+                            Ask thyself and you shall receive.<br/> The assistant is here to help you with your queries.
                         </p>
                         {/* Add some example prompts here if needed */}
                     </div>
@@ -192,18 +192,18 @@ export default function ChatInterface() {
                             {message.sender === 'assistant' && (
                                 <Avatar className="h-8 w-8 bg-gradient-to-r from-red-500 to-orange-500 border border-zinc-700">
                                     <AvatarFallback>
-                                        <BrainCircuit className="h-4 w-4" />
+                                        <ScanHeart className="h-4 w-4" color="purple" />
                                     </AvatarFallback>
                                 </Avatar>
                             )}
 
                             <div
                                 className={`rounded-2xl p-4 max-w-[90%] md:max-w-[70%] border ${message.sender === 'user'
-                                    ? "bg-zinc-800/80 border-blue-700"
-                                    : "bg-zinc-600 border-orange-700"
+                                    ? "bg-white border-monad-berry"
+                                    : "bg-monad-purple border-monad-black"
                                     }`}
                             >
-                                <div className="text-sm text-white prose-invert">
+                                <div className="text-sm text-monad-black prose-invert">
                                     <ReactMarkdown>
                                         {message.content}
                                     </ReactMarkdown>
@@ -211,10 +211,9 @@ export default function ChatInterface() {
                             </div>
 
                             {message.sender === 'user' && (
-                                <Avatar className="h-8 w-8 border border-zinc-700">
-                                    <AvatarImage src={'/placeholder.svg'} />
+                                <Avatar className="h-8 w-8 border border-zinc-700 bg-monad-purple">
                                     <AvatarFallback>
-                                        {user?.email?.address?.charAt(0).toUpperCase() || 'U'}
+                                        <UserCircle className="h-6 w-6" />
                                     </AvatarFallback>
                                 </Avatar>
                             )}
@@ -222,10 +221,10 @@ export default function ChatInterface() {
                     ))
                 )}
                 {isLoading && (
-                    <div className="flex items-center space-x-2 mx-4 md:mx-6 lg:mx-8">
+                    <div className="flex items-center space-x-2 mx-4 md:mx-6 lg:mx-8 bg-black bg-opacity-10 rounded-lg p-2">
                         <Avatar className="h-8 w-8 bg-gradient-to-r from-red-500 to-orange-500 border border-zinc-700">
                             <AvatarFallback>
-                                <BrainCircuit className="h-4 w-4" />
+                                <ScanHeart fill="black" className="h-4 w-4" />
                             </AvatarFallback>
                         </Avatar>
                         <SyncLoader
@@ -248,12 +247,12 @@ export default function ChatInterface() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            className="flex-grow p-3 bg-zinc-800 border border-zinc-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors"
+                            className="flex-grow p-3 bg-monad-offwhite border border-zinc-700 rounded text-monad-black focus:outline-none focus:ring-2 focus:ring-monad-berry transition-colors"
                             disabled={isLoading}
                         />
                         <button
                             type="submit"
-                            className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white p-3 rounded aspect-square flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                            className=" bg-black text-white p-3 rounded aspect-square flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:opacity-50"
                             disabled={isLoading}
                         >
                             <Send className="h-5 w-5" />

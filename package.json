@@ -11,6 +11,7 @@
     "vercel-build": "npx prisma generate && npx prisma migrate deploy && next build"
   },
   "dependencies": {
+    "@envio-dev/hypersync-client": "^0.6.3",
     "@langchain/core": "^0.3.40",
     "@mantine/core": "^7.17.0",
     "@mantine/hooks": "^7.17.0",

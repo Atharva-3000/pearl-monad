@@ -4,7 +4,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, PenSquare, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, PenSquare, Plus, Trash2, LogOut } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { generateChatId } from "@/lib/utils";
@@ -200,16 +200,6 @@ export function ChatSidebar() {
     }
   };
 
-  // Highlight effect styles
-  const getChatStyles = (chatId: string) => {
-    const isActive = params?.chatId === chatId;
-    const isNew = chatId === params?.chatId && chats.findIndex(c => c.id === chatId) === 0;
-
-    return `group relative rounded-lg p-3 hover:bg-zinc-900 transition-all cursor-pointer
-      ${isActive ? 'bg-zinc-900 border-l-2 border-orange-500' : ''}
-      ${isNew ? 'animate-pulse' : ''}`;
-  };
-
   return (
     <>
       {/* Toggle button */}
@@ -221,11 +211,11 @@ export function ChatSidebar() {
           right: isOpen ? 280 : 0
         }}
         transition={{ duration: 0.2 }}
-        className="fixed top-24 z-30 p-2 bg-zinc-900 border border-zinc-800 !rounded-l hover:bg-zinc-800 transition-all duration-200"
+        className="fixed top-24 z-30 p-2 bg-monad-black border border-monad-purple/40 !rounded-l hover:bg-monad-berry transition-all duration-200"
       >
         {isOpen ?
-          <ChevronRight className="h-4 w-4 text-zinc-400 hover:text-white transition-colors duration-200" /> :
-          <ChevronLeft className="h-4 w-4 text-zinc-400 hover:text-white transition-colors duration-200" />
+          <ChevronRight className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" /> :
+          <ChevronLeft className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" />
         }
       </motion.button>
 
@@ -237,7 +227,7 @@ export function ChatSidebar() {
           x: isOpen ? 0 : 280
         }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="h-full border-l border-zinc-800 bg-black overflow-hidden"
+        className="h-full border-l border-zinc-800 bg-monad-offwhite overflow-hidden rounded-md"
       >
         <AnimatePresence>
           {isOpen && (
@@ -247,11 +237,11 @@ export function ChatSidebar() {
               exit={{ opacity: 0 }}
               className="h-full flex flex-col"
             >
-              <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-none">
-
+              <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-none">
+                <h2 className="text-xl font-semibold text-center text-monad-berry">Chats History</h2>
                 {loading ? (
                   <div className="flex justify-center py-4">
-                    <FadeLoader color="#f97316" height={4} width={4} />
+                    <FadeLoader color="purple" height={4} width={4} />
                   </div>
                 ) : chats.length === 0 ? (
                   <div className="text-zinc-500 text-center py-4">
@@ -261,8 +251,14 @@ export function ChatSidebar() {
                   chats.map((chat) => (
                     <motion.div
                       key={chat.id}
-                      className={`group relative rounded-lg p-3 hover:bg-zinc-900 transition-all duration-200 cursor-pointer ${params?.chatId === chat.id ? 'bg-zinc-900 border-l-2 border-orange-500' : ''
-                        }`}
+                      className={`
+                        group relative rounded-lg p-3 border border-zinc-700
+                        hover:bg-monad-berry hover:text-white hover:border-monad-berry
+                        transition-all duration-200 cursor-pointer 
+                        ${params?.chatId === chat.id 
+                          ? 'bg-zinc-100 text-black border-l-4 border-monad-berry' 
+                          : 'bg-monad-offwhite text-black'}
+                      `}
                       onClick={() => router.push(`/chat/${chat.id}`)}
                       initial={chat.id === params?.chatId ? { opacity: 0, x: -20 } : false}
                       animate={{ opacity: 1, x: 0 }}
@@ -280,18 +276,18 @@ export function ChatSidebar() {
                                 handleEditTitle(chat.id, newTitle);
                               }
                             }}
-                            className="w-full bg-transparent text-white border-b border-orange-500 outline-none text-center"
+                            className="w-full bg-transparent border-b border-monad-berry outline-none text-center"
                             autoFocus
                           />
                           {savingTitle && (
                             <div className="absolute right-3">
-                              <SyncLoader color="#f97316" size={4} />
+                              <SyncLoader color="#836EF9" size={4} />
                             </div>
                           )}
                         </div>
                       ) : (
                         <>
-                          <span className="text-zinc-300 text-sm block text-center truncate">
+                          <span className="text-sm block text-center truncate">
                             {chat.title || chat.id}
                           </span>
                           <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 transition-opacity duration-200 ${params?.chatId === chat.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
@@ -305,17 +301,17 @@ export function ChatSidebar() {
                               className="p-1 rounded-md transition-colors duration-200"
                               disabled={deletingChatId === chat.id}
                             >
-                              <PenSquare className="h-4 w-4 text-zinc-500 hover:text-orange-500 transition-colors" />
+                              <PenSquare className="h-4 w-4 text-zinc-500 group-hover:text-white transition-colors" />
                             </button>
                             <button
                               onClick={(e) => handleDeleteChat(e, chat.id)}
-                              className="p-1 rounded-md transition-all duration-200  group/delete"
+                              className="p-1 rounded-md transition-all duration-200 group/delete"
                               disabled={deletingChatId === chat.id}
                             >
                               {deletingChatId === chat.id ? (
                                 <SyncLoader color="#ef4444" size={4} />
                               ) : (
-                                <Trash2 className="h-4 w-4 text-zinc-500 group-hover/delete:text-red-500" />
+                                <Trash2 className="h-4 w-4 text-zinc-500 group-hover:text-white group-hover/delete:text-red-100" />
                               )}
                             </button>
                           </div>
@@ -326,14 +322,25 @@ export function ChatSidebar() {
                 )}
               </div>
 
-              <div className="p-3 border-t border-zinc-800 bg-black">
-                <button
-                  onClick={handleNewChat}
-                  className="w-full flex items-center justify-center gap-2 p-2 bg-gradient-to-r from-red-500 to-orange-500 hover:opacity-90 rounded-full text-white text-sm transition-all duration-200"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>New Chat</span>
-                </button>
+              <div className="p-3 border-t border-zinc-800 bg-monad-offwhite flex flex-col gap-2 justify-center border-b">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleNewChat}
+                    className="flex-[0.8] flex items-center justify-center gap-2 p-2 bg-monad-berry hover:opacity-90 rounded-full text-white text-sm transition-all duration-200"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>New Chat</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push('/');
+                      toast.success('Left chat room');
+                    }}
+                    className="flex-[0.2] p-2 rounded-md bg-red-900 hover:bg-red-500 text-white transition-colors flex items-center justify-center"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

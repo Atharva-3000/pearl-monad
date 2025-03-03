@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Use upsert to create or update the user
     const user = await prisma.user.upsert({
       where: { id: did },
-    update: { 
+      update: { 
         email: email || undefined // Only update email if provided
       },
       create: {
@@ -42,10 +42,12 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('User creation error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal Server Error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    // Simplified error handling to avoid any syntax issues
+    const errorBody = JSON.stringify({ error: 'Internal Server Error' });
+    
+    return new Response(errorBody, { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 }

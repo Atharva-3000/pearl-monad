@@ -3,7 +3,7 @@
 import ChatInterface from "@/components/ChatInterface";
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { motion } from "framer-motion";
-import { LogOut, BrainCircuit } from "lucide-react";
+import { ScanHeart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
@@ -40,16 +40,25 @@ export default function ChatPage() {
         transition={{ duration: 0.5 }}
         className="fixed top-0 left-0 right-0 z-50"
       >
-        <div className="backdrop-blur-md bg-black/30 border-b border-white/10">
+        <div className="backdrop-blur-md bg-monad-purple border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-2">
-                <BrainCircuit color="white" size={24} />
-                <span className="text-white/60 font-mono text-sm">
+              <div className="flex items-center gap-2 justify-center">
+                <ScanHeart color="white" size={24} />
+                <span className="text-monad-black font-mono text-md">
                   Chat ID: {params?.chatId}
                 </span>
               </div>
-              <button
+              <div>
+                <button
+                  onClick={() => router.push(`/chat/${params?.chatId}/dashboard`)}
+                  className="bg-black/80 hover:bg-white hover:text-black text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2"
+                >
+                  Dashboard
+                </button>
+              </div>
+
+              {/* <button
                 onClick={() => {
                   router.push('/');
                   toast.success('Left chat room');
@@ -58,14 +67,14 @@ export default function ChatPage() {
               >
                 <LogOut className="h-5 w-5" />
                 <span className="hidden sm:inline">Exit Chat</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Main content area */}
-      <div className="pt-20 pb-4 flex h-screen">
+      <div className="pt-20 pb-4 flex h-screen bg-monad-offwhite">
         <div className="flex-1">
           <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <ChatInterface />
