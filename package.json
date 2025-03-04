@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@envio-dev/hypersync-client": "^0.6.3",
+    "@envio-dev/hypersync-client-win32-x64-msvc": "^0.6.3",
     "@langchain/core": "^0.3.40",
     "@mantine/core": "^7.17.0",
     "@mantine/hooks": "^7.17.0",
@@ -27,6 +28,7 @@
     "clsx": "^2.1.1",
     "ethers": "^6.13.5",
     "framer-motion": "^12.4.7",
+    "lru-cache": "^11.0.2",
     "lucide-react": "^0.475.0",
     "motion": "^12.4.7",
     "next": "15.1.7",
@@ -40,7 +42,7 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "use-sync-external-store": "^1.4.0",
-    "viem": "^2.23.5",
+    "viem": "^2.23.6",
     "view": "^0.6.1"
   },
   "devDependencies": {

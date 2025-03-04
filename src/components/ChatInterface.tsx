@@ -229,7 +229,7 @@ export default function ChatInterface() {
                         </Avatar>
                         <SyncLoader
                             className="ml-2"
-                            color="#f97316"
+                            color="purple"
                             size={6}
                             speedMultiplier={0.6}
                         />

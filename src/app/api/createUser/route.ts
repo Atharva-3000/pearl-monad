@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     // Simplified error handling to avoid any syntax issues
+    console.error(error);
     const errorBody = JSON.stringify({ error: 'Internal Server Error' });
+    
     
     return new Response(errorBody, { 
       status: 500, 

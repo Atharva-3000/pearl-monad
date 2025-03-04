@@ -1,11 +1,9 @@
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // src/app/api/chat/route.ts
 export const dynamic = 'force-dynamic';
 
 import { NextRequest } from 'next/server';
-import { HumanMessage } from '@langchain/core/messages';
+// import { HumanMessage } from '@langchain/core/messages';
 import { initializeAgent } from '@/providers/agentProvider';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
@@ -52,8 +50,8 @@ export async function POST(req: NextRequest) {
             title: message.slice(0, 50)
           }
         });
-      } catch (error: any) {
-        if (error.code !== 'P2002') throw error;
+      } catch (error) {
+        if (error instanceof Error && 'code' in error && error.code !== 'P2002') throw error;
       }
     }
 

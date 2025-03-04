@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import "dotenv/config";
 import OpenAI from "openai";
 import { createAssistant } from "@/agent/openai/createAssistant";
@@ -7,7 +5,7 @@ import { createAssistant } from "@/agent/openai/createAssistant";
 const client = new OpenAI();
 
 // Cache for assistant and threads
-let cachedAssistant: any = null;
+let cachedAssistant: OpenAI.Beta.Assistants.Assistant | null = null;
 
 // Initialize or get cached assistant
 export async function initializeAgent() {

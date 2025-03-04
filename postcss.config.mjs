@@ -4,7 +4,6 @@ const config = {
     tailwindcss: {},
   },
   'postcss-preset-mantine': {},
-  'postcss-preset-mantine': {},
   'postcss-simple-vars': {},
   tailwindcss: {},
   autoprefixer: {},

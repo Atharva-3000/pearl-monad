@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest } from 'next/server';
+// import { PrismaClient } from '@prisma/client';
 import { getPrivateKeyForUser } from '@/lib/auth/session';
 
 // Create Prisma client instance
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
     try {
