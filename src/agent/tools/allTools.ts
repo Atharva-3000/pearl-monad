@@ -1,5 +1,6 @@
 import { getBalanceTool } from "./getBalance";
 import { getWalletAddressTool } from "./getWalletAddress";
+import { sendTransactionTool } from "./sendTransaction";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ToolConfig<T = any> {
@@ -23,4 +24,7 @@ export const tools: Record<string, ToolConfig> = {
     // == READ Tools == \\
     get_balance: getBalanceTool,
     get_wallet_address: getWalletAddressTool,
+    
+    // == WRITE Tools == \\
+    send_transaction: sendTransactionTool,
 };
