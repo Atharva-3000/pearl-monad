@@ -18,8 +18,20 @@ interface Chat {
   updatedAt: Date;
 }
 
-export function ChatSidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+interface ChatSidebarProps {
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
+  showToggleButton?: boolean;
+}
+
+export function ChatSidebar({ isOpen: externalIsOpen, setIsOpen: externalSetIsOpen, showToggleButton = true }: ChatSidebarProps) {
+  // For internal state management if not controlled externally
+  const [internalIsOpen, setInternalIsOpen] = useState(true);
+
+  // Use external state if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = externalSetIsOpen || setInternalIsOpen;
+
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
@@ -78,7 +90,7 @@ export function ChatSidebar() {
     };
 
     setChats(prev => [newChat, ...prev]);
-    
+
     // Navigate first (before API call)
     router.push(`/chat/${chatId}`);
 
@@ -128,7 +140,7 @@ export function ChatSidebar() {
   const handleDeleteChat = async (e: React.MouseEvent, chatId: string) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     setDeletingChatId(chatId);
 
     // Check if this is the last chat before removing it
@@ -141,7 +153,7 @@ export function ChatSidebar() {
       if (!isActiveChatBeingDeleted) {
         setChats(prev => prev.filter(chat => chat.id !== chatId));
       }
-      
+
       // If we're deleting the active chat, prepare navigation
       if (isActiveChatBeingDeleted) {
         if (isLastChat) {
@@ -152,9 +164,9 @@ export function ChatSidebar() {
             title: 'New Chat',
             updatedAt: new Date()
           };
-          
+
           setChats([newChat]);
-          
+
           // Navigate immediately
           router.push(`/chat/${newChatId}`);
         } else {
@@ -172,7 +184,7 @@ export function ChatSidebar() {
       });
 
       if (!response.ok) throw new Error('Failed to delete chat');
-      
+
       // If deleting active last chat, create a new one
       if (isLastChat && isActiveChatBeingDeleted && newChatId) {
         await fetch('/api/chats', {
@@ -192,7 +204,7 @@ export function ChatSidebar() {
     } catch (error) {
       console.error('Error deleting chat:', error);
       toast.error('Failed to delete chat');
-      
+
       // Now fetchChats is properly in scope
       fetchChats();
     } finally {
@@ -202,24 +214,26 @@ export function ChatSidebar() {
 
   return (
     <>
-      {/* Toggle button */}
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        initial={false}
-        animate={{
-          x: isOpen ? 0 : 12,
-          right: isOpen ? 280 : 0
-        }}
-        transition={{ duration: 0.2 }}
-        className="fixed top-24 z-30 p-2 bg-monad-black border border-monad-purple/40 !rounded-l hover:bg-monad-berry transition-all duration-200"
-      >
-        {isOpen ?
-          <ChevronRight className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" /> :
-          <ChevronLeft className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" />
-        }
-      </motion.button>
+      {/* Toggle button - only show if showToggleButton is true AND screen is at least medium size */}
+      {showToggleButton && (
+        <motion.button
+          onClick={() => setIsOpen(!isOpen)}
+          initial={false}
+          animate={{
+            x: isOpen ? 0 : 12,
+            right: isOpen ? 280 : 0
+          }}
+          transition={{ duration: 0.2 }}
+          className="fixed top-24 z-30 p-2 bg-monad-black border border-monad-purple/40 !rounded-l hover:bg-monad-berry transition-all duration-200 hidden md:block"
+        >
+          {isOpen ?
+            <ChevronRight className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" /> :
+            <ChevronLeft className="h-4 w-4 text-monad-offwhite hover:text-white transition-colors duration-200" />
+          }
+        </motion.button>
+      )}
 
-      {/* Sidebar */}
+      {/* Sidebar - keep the same animations */}
       <motion.div
         initial={{ width: 280, x: 0 }}
         animate={{
@@ -255,8 +269,8 @@ export function ChatSidebar() {
                         group relative rounded-lg p-3 border border-zinc-700
                         hover:bg-monad-berry hover:text-white hover:border-monad-berry
                         transition-all duration-200 cursor-pointer 
-                        ${params?.chatId === chat.id 
-                          ? 'bg-zinc-100 text-black border-l-4 border-monad-berry' 
+                        ${params?.chatId === chat.id
+                          ? 'bg-zinc-100 text-black border-l-4 border-monad-berry'
                           : 'bg-monad-offwhite text-black'}
                       `}
                       onClick={() => router.push(`/chat/${chat.id}`)}

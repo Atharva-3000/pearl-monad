@@ -1,9 +1,9 @@
 "use client";
-// src/app/chat/[chatid]/page.tsx
+
 import ChatInterface from "@/components/ChatInterface";
 import { ChatSidebar } from "@/components/ChatSidebar";
 import { motion } from "framer-motion";
-import { ScanHeart } from "lucide-react";
+import { ScanHeart, Menu } from "lucide-react"; // Added Menu icon
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
@@ -15,6 +15,7 @@ export default function ChatPage() {
   const params = useParams();
   const { authenticated, user } = usePrivy();
   const [mounted, setMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State for sidebar visibility
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +27,13 @@ export default function ChatPage() {
       toast.error('Please login to access the chat');
     }
   }, [mounted, authenticated, router]);
+
+  // Close sidebar when clicking outside on mobile
+  const handleOverlayClick = () => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
 
   if (!mounted || !authenticated || !user) {
     return null;
@@ -49,38 +57,46 @@ export default function ChatPage() {
                   Chat ID: {params?.chatId}
                 </span>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => router.push(`/chat/${params?.chatId}/dashboard`)}
                   className="bg-black/80 hover:bg-white hover:text-black text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2"
                 >
                   Dashboard
                 </button>
+                {/* Hamburger menu button for mobile */}
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="bg-black/80 hover:bg-white hover:text-black text-white p-2 rounded-md md:hidden flex items-center justify-center"
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu size={20} />
+                </button>
               </div>
-
-              {/* <button
-                onClick={() => {
-                  router.push('/');
-                  toast.success('Left chat room');
-                }}
-                className="bg-red-900/80 hover:bg-red-900 text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="hidden sm:inline">Exit Chat</span>
-              </button> */}
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Main content area */}
-      <div className="pt-20 pb-4 flex h-screen bg-monad-offwhite">
+      <div className="pt-20 pb-4 flex h-screen bg-monad-offwhite relative">
+        {/* Semi-transparent overlay for mobile when sidebar is open */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={handleOverlayClick}
+            aria-hidden="true"
+          />
+        )}
+
         <div className="flex-1">
           <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <ChatInterface />
           </div>
         </div>
-        <div className="h-[calc(100vh-6rem)] mt-0">
+
+        {/* Modified sidebar that's aware of open state */}
+        <div className={`h-[calc(100vh-6rem)] mt-0 z-50 md:z-auto fixed md:static right-0 top-16 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
           <ChatSidebar />
         </div>
       </div>

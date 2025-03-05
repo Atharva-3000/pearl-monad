@@ -8,8 +8,13 @@ import {
 import pearl from "../../public/pearl_asset_1.jpg";
 import Image from 'next/image';
 import { AnimatePresence } from 'framer-motion';
-import { MenuOverlay } from '@/components/menu-overlay';
+import dynamic from 'next/dynamic';
 import { ToolsCard } from '@/components/tools-card';
+
+const MenuOverlay = dynamic(() => import('@/components/menu-overlay').then(mod => mod.MenuOverlay), {
+    ssr: false,
+    loading: () => <div className="menu-loading-placeholder"></div>
+});
 
 export default function Hero() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,6 +72,9 @@ export default function Hero() {
                                 src={pearl}
                                 alt="Decentralized Intelligence"
                                 className="w-full h-full object-cover"
+                                priority={true} // Add priority to both instances
+                                loading="eager"
+                                sizes="(max-width: 768px) 100vw, 50vw" // Optimize sizes based on viewport
                             />
                         </div>
 
