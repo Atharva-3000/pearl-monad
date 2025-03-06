@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 "use client";
 import { useState, useRef, useEffect } from "react";
@@ -110,24 +111,24 @@ export default function ChatInterface() {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
+
                 buffer += decoder.decode(value, { stream: true });
-                
+
                 // Process complete events in buffer
                 while (buffer.includes('\n\n')) {
                     const eventEnd = buffer.indexOf('\n\n');
                     const event = buffer.slice(0, eventEnd);
                     buffer = buffer.slice(eventEnd + 2);
-                    
+
                     if (event.startsWith('data: ')) {
                         const data = event.slice(6);
                         if (data === '[DONE]') continue;
-                        
+
                         try {
                             const parsed = JSON.parse(data);
                             if (parsed.content) {
                                 const newDelta = parsed.content;
-                                
+
                                 if (!assistantMessageAdded) {
                                     // Add the assistant message only when we get the first content
                                     setMessages(prev => [
@@ -155,8 +156,8 @@ export default function ChatInterface() {
         } catch (error) {
             console.error('Error:', error);
             toast.error(
-                error instanceof Error 
-                    ? error.message 
+                error instanceof Error
+                    ? error.message
                     : 'Request timed out. Please try again with a shorter message.'
             );
         } finally {
@@ -167,8 +168,8 @@ export default function ChatInterface() {
     // Keep the existing return statement as is
     return (
         <div className="h-[calc(100vh-6rem)] bg-monad-offwhite border border-zinc-800 backdrop-blur-sm rounded-t-lg overflow-hidden flex flex-col">
-            {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
+            {/* Messages Container - Reduce padding from p-4 to p-2 or p-3 */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-3 scrollbar-none">
                 {loadingChat ? (
                     <div className="flex justify-center py-4">
                         <SyncLoader color="#f97316" size={6} />
@@ -178,7 +179,7 @@ export default function ChatInterface() {
                         <ScanHeart className="h-16 w-16 text-monad-berry mb-2" />
                         <h3 className="text-xl font-medium text-zinc-600">Start a new conversation</h3>
                         <p className="text-sm text-zinc-400 mt-1 max-w-sm">
-                            Ask thyself and you shall receive.<br/> The assistant is here to help you with your queries.
+                            Ask thyself and you shall receive.<br /> The assistant is here to help you with your queries.
                         </p>
                         {/* Add some example prompts here if needed */}
                     </div>
@@ -186,7 +187,7 @@ export default function ChatInterface() {
                     messages.map((message, i) => (
                         <div
                             key={i}
-                            className={`flex items-start gap-3 mx-4 md:mx-6 lg:mx-8 ${message.sender === 'user' ? "justify-end" : ""
+                            className={`flex items-start gap-2 mx-2 sm:mx-3 md:mx-4 ${message.sender === 'user' ? "justify-end" : ""
                                 }`}
                         >
                             {message.sender === 'assistant' && (
@@ -198,13 +199,54 @@ export default function ChatInterface() {
                             )}
 
                             <div
-                                className={`rounded-2xl p-4 max-w-[90%] md:max-w-[70%] border ${message.sender === 'user'
+                                className={`rounded-2xl p-4 max-w-[85%] sm:max-w-[80%] md:max-w-[70%] border ${message.sender === 'user'
                                     ? "bg-white border-monad-berry"
                                     : "bg-monad-purple border-monad-black"
                                     }`}
                             >
-                                <div className="text-sm text-monad-black prose-invert">
-                                    <ReactMarkdown>
+                                {/* Update the text container with better word breaking and overflow handling */}
+                                <div className="text-sm text-monad-black prose-invert break-words overflow-hidden">
+                                    <ReactMarkdown
+                                        components={{
+                                            // Custom handling for code and pre elements
+                                            code: ({ className, children, ...props }: any) => {
+                                                const match = /language-(\w+)/.exec(className || '');
+                                                const isInline = !match && props.inline;
+                                                return (
+                                                    <code
+                                                        className={`${className} ${isInline ? 'break-all text-xs' : 'overflow-x-auto max-w-full block text-xs'}`}
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                );
+                                            },
+                                            // Handle links with proper truncation
+                                            a: ({ node, className, children, ...props }) => {
+                                                return (
+                                                    <a
+                                                        className={`${className} break-all text-blue-600 underline`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </a>
+                                                );
+                                            },
+                                            // Add special styling for transaction hashes and other long strings
+                                            p: ({ node, className, children, ...props }) => {
+                                                return (
+                                                    <p
+                                                        className={`${className} whitespace-pre-wrap break-words`}
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </p>
+                                                );
+                                            }
+                                        }}
+                                    >
                                         {message.content}
                                     </ReactMarkdown>
                                 </div>
@@ -221,7 +263,7 @@ export default function ChatInterface() {
                     ))
                 )}
                 {isLoading && (
-                    <div className="flex items-center space-x-2 mx-4 md:mx-6 lg:mx-8 bg-black bg-opacity-10 rounded-lg p-2">
+                    <div className="flex items-center space-x-2 mx-2 sm:mx-3 md:mx-4 bg-black bg-opacity-10 rounded-lg p-2">
                         <Avatar className="h-8 w-8 bg-gradient-to-r from-red-500 to-orange-500 border border-zinc-700">
                             <AvatarFallback>
                                 <ScanHeart fill="black" className="h-4 w-4" />
