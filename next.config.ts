@@ -4,7 +4,7 @@ const nextConfig = {
     serverActions: true,
     serverComponentsExternalPackages: [
       '@envio-dev/hypersync-client',
-      '@envio-dev/hypersync-client-win32-x64-msvc'
+      // '@envio-dev/hypersync-client-win32-x64-msvc'
     ],
   },
   images: {
