@@ -2,6 +2,10 @@
 const nextConfig = {
   experimental: {
     serverActions: true,
+    serverComponentsExternalPackages: [
+      '@envio-dev/hypersync-client',
+      '@envio-dev/hypersync-client-win32-x64-msvc'
+    ],
   },
   images: {
     domains: ['images.unsplash.com', 'avatar.vercel.sh', 'logo.clearbit.com'],
