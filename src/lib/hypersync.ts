@@ -98,7 +98,7 @@ export async function fetchBlockchainData(address: string) {
             ...tx,
             gasUsedFormatted: '0',
             gasPriceFormatted: '0 Gwei',
-            gasFeeFormatted: '0 ETH',
+            gasFeeFormatted: '0 MON',
             valueFormatted: '0'
           };
 
