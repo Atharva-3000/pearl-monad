@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import {
-    Menu,
-    ScanHeart, Radius
-} from 'lucide-react';
+import { Menu, Radius } from 'lucide-react';
 import pearl from "../../public/pearl_asset_1.jpg";
+import pearlLogo from "../../public/pearl-logo.png";
+import pearlLogoSmall from "../../public/pearl-logo-small.png";
 import Image from 'next/image';
 import { AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -34,11 +33,20 @@ export default function Hero() {
             {/* Split screen layout for large screens, stacked for mobile */}
             <div className="block lg:hidden">
                 {/* Mobile Layout */}
-                <nav className="w-full bg-transparent backdrop-blur-sm pt-8 px-6">
+                <nav className="w-full bg-transparent pt-8 px-6">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <ScanHeart style={{ width: 32, height: 32 }} className="pb-1" />
-                            <span className="font-bold tracking-wider text-lg">P. E. A. R. L.</span>
+                        <div className="flex items-center">
+                            {/* Only show the small logo on mobile, with increased size */}
+                            <Image
+                                src={pearlLogoSmall}
+                                alt="PEARL Logo"
+                                width={48}
+                                height={48}
+                                className="pb-1"
+                                style={{ backgroundColor: 'transparent' }}
+                                priority
+                            />
+                            {/* Removed the text span */}
                         </div>
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -50,7 +58,7 @@ export default function Hero() {
                     </div>
                 </nav>
 
-                {/* Mobile Content */}
+                {/* Mobile Content - Keep the rest unchanged */}
                 <div className="flex flex-col px-6 pt-16">
                     {/* Title Section */}
                     <div className="text-center">
@@ -91,11 +99,19 @@ export default function Hero() {
                 {/* Left Half */}
                 <div className="w-1/2 min-h-screen relative">
                     {/* Original desktop nav and content */}
-                    <nav className="w-full bg-transparent backdrop-blur-sm pt-12 px-12 pb-0 mb-0">
+                    <nav className="w-full bg-transparent pt-12 px-12 pb-0 mb-0">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <ScanHeart style={{ width: 32, height: 32 }} className="pb-1" />
-                                <span className="font-bold tracking-wider text-lg md:text-xl">P. E. A. R. L.</span>
+                            <div className="flex items-center">
+                                {/* Increased size for desktop logo and ensured transparency */}
+                                <Image
+                                    src={pearlLogo}
+                                    alt="PEARL Logo"
+                                    width={180}
+                                    height={48}
+                                    className="h-auto"
+                                    style={{ backgroundColor: 'transparent' }}
+                                    priority
+                                />
                             </div>
 
                             <button
