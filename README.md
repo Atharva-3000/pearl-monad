@@ -1,4 +1,5 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+![wall pearl](https://github.com/user-attachments/assets/0aaf3ac9-c0a9-4b38-b42c-d73622632f78)
 
 ## Getting Started
 
