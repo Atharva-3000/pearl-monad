@@ -1,12 +1,18 @@
 import { ToolConfig } from "./allTools";
 import * as dotenv from "dotenv";
-import { formatUnits } from "viem";
-import { getServerWalletAddress } from "../viem/serverWalletUtils";
+import { formatUnits, getContract, maxUint256 } from "viem";
+import {
+  createServerWalletClient,
+  getServerWalletAddress,
+} from "../viem/serverWalletUtils";
+import { erc20_ABI } from "../abi/erc20-abi";
+import { permit2_ABI } from "../abi/permit2-abi";
 
 dotenv.config();
 
 // Constants
 const MONAD_TESTNET_CHAIN_ID = "10143";
+const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 
 interface FetchQuoteArgs {
   sellToken: string;
@@ -96,9 +102,52 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
       let data;
       try {
         data = JSON.parse(rawText);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         throw new Error(`Failed to parse response as JSON: ${rawText}`);
+      }
+
+      // Check and set allowance for sellToken
+      const sellTokenContract = getContract({
+        address: sellToken as `0x${string}`,
+        abi: erc20_ABI,
+        client: createServerWalletClient(privateKey),
+      });
+
+      const currentAllowance = (await sellTokenContract.read.allowance([
+        takerAddress,
+        PERMIT2_ADDRESS,
+      ])) as bigint;
+
+      if (BigInt(sellAmount) > currentAllowance) {
+        console.log(
+          `Current allowance for ${sellToken} is insufficient. Approving Permit2 to spend ${sellToken}...`
+        );
+
+        try {
+          const { request } = await sellTokenContract.simulate.approve([
+            PERMIT2_ADDRESS,
+            maxUint256,
+          ]);
+          console.log("Approving Permit2 to spend sellToken...", request);
+
+          const hash = await sellTokenContract.write.approve([
+            PERMIT2_ADDRESS,
+            maxUint256,
+          ]);
+          console.log("Approved Permit2 to spend sellToken.", hash);
+        } catch (error) {
+          console.error("Error approving Permit2:", error);
+          throw new Error(
+            `Failed to approve Permit2 to spend ${sellToken}: ${
+              error instanceof Error ? error.message : "Unknown error"
+            }`
+          );
+        }
+      } else {
+        console.log(
+          `Allowance for ${sellToken} is already sufficient for Permit2.`
+        );
       }
 
       // Check if the response is successful
