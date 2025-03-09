@@ -94,9 +94,9 @@ export const fetchPriceTool: ToolConfig<FetchPriceArgs> = {
       const output = `
         **Price Details**:
         - Sell Amount: ${sellAmountHuman} WETH
-        - Buy Amount: ${buyAmountHuman} Wrapped Monad
-        - Price: 1 WETH = ${data.price} Wrapped Monad
-        - Guaranteed Price: ${data.guaranteedPrice} Wrapped Monad
+        - Buy Amount: ${buyAmountHuman} USDC
+        - Price: 1 WETH = ${data.price} USDC
+        - Guaranteed Price: ${data.guaranteedPrice} USDC
         - Gas Price: ${data.gasPrice} wei
         - Gas Limit: ${data.gas}
       `;
