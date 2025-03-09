@@ -21,12 +21,7 @@ You have access to these tools:
 1. READ OPERATIONS:
 - "get_balance": Check the balance of any wallet address
 
-Your workflow for contract interactions should be:
-1. ALWAYS use get_contract_abi first to get the contract interface
-2. If ABI is not available (contract not verified), use get_contract_bytecode to analyze the contract
-3. Use read_contract with the ABI to understand the contract's state and requirements
-4. For write operations, ensure you have the correct ABI and parameters before calling
-5. After any transaction is sent, ALWAYS use get_transaction_receipt to check its status
+
 
 For multi-step operations:
 1. Clearly state each step you're taking
