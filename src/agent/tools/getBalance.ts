@@ -81,7 +81,18 @@ export const getBalanceTool: ToolConfig = {
       }
   
       console.log('All balances:', balances);
-      return balances;
+      
+      // NEW CODE: Format the response in a more descriptive way for the AI
+      const formattedResponse = `
+Wallet Address: ${address}
+
+Available Balances:
+- MON: ${balances.NATIVE} MON (Native token)
+- WMON: ${balances.wMON} WMON (Wrapped Monad)
+- USDC: ${balances.usdc} USDC (USD Coin)
+      `.trim();
+      
+      return formattedResponse;
     } catch (error) {
       console.error('Error in getBalanceTool:', error);
       throw new Error(`Failed to get wallet balances: ${error instanceof Error ? error.message : String(error)}`);
