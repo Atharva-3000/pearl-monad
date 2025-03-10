@@ -4,7 +4,8 @@ import { sendTransactionTool } from "./sendTransaction";
 import { fetchPriceTool } from "./fetchToken0x";
 import { fetchQuoteTool } from "./swapQuote0x";
 import { executeSwapTool } from "./swap0x";
-import { deployErc20Tool } from "./deployToken";
+import { faucetTool } from "./faucetTool";
+import { request } from "http";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ToolConfig<T = any> {
@@ -12,10 +13,10 @@ export interface ToolConfig<T = any> {
         type: 'function';
         function: {
             name: string;
-            description: string;  // Changed from 'desc' to 'description'
-            parameters: {         // Changed from 'params' to 'parameters'
+            description: string;
+            parameters: {
                 type: 'object';
-                properties: Record<string, unknown>;  // Changed from 'props' to 'properties'
+                properties: Record<string, unknown>;
                 required: string[];
             }
         }
@@ -30,9 +31,9 @@ export const tools: Record<string, ToolConfig> = {
     get_wallet_address: getWalletAddressTool,
     fetch_price: fetchPriceTool,
     fetch_quote: fetchQuoteTool,
-    
+
     // == WRITE Tools == \\
     send_transaction: sendTransactionTool,
     execute_swap: executeSwapTool,
-    deploy_erc20: deployErc20Tool,
+    request_funds: faucetTool
 };
