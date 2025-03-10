@@ -1,18 +1,12 @@
 import { ToolConfig } from "./allTools";
 import * as dotenv from "dotenv";
-import { formatUnits, getContract, maxUint256 } from "viem";
-import {
-  createServerWalletClient,
-  getServerWalletAddress,
-} from "../viem/serverWalletUtils";
-import { erc20_ABI } from "../abi/erc20-abi";
-import { permit2_ABI } from "../abi/permit2-abi";
+import { formatUnits } from "viem";
+import { getServerWalletAddress } from "../viem/serverWalletUtils";
 
 dotenv.config();
 
 // Constants
 const MONAD_TESTNET_CHAIN_ID = "10143";
-const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 
 interface FetchQuoteArgs {
   sellToken: string;
@@ -71,8 +65,7 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
 
       // Log which chain we're using
       console.log(
-        `Fetching quote on chain ID: ${chainId} (${
-          chainId === MONAD_TESTNET_CHAIN_ID ? "Monad Testnet" : "Custom Chain"
+        `Fetching quote on chain ID: ${chainId} (${chainId === MONAD_TESTNET_CHAIN_ID ? "Monad Testnet" : "Custom Chain"
         })`
       );
 
@@ -97,7 +90,7 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
       const response = await fetch(url.toString(), { headers });
 
       const rawText = await response.text();
-      console.log("---------Raw Response Text:", rawText);
+      // console.log("---------Raw Response Text:", rawText);
 
       let data;
       try {
@@ -105,49 +98,6 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         throw new Error(`Failed to parse response as JSON: ${rawText}`);
-      }
-
-      // Check and set allowance for sellToken
-      const sellTokenContract = getContract({
-        address: sellToken as `0x${string}`,
-        abi: erc20_ABI,
-        client: createServerWalletClient(privateKey),
-      });
-
-      const currentAllowance = (await sellTokenContract.read.allowance([
-        takerAddress,
-        PERMIT2_ADDRESS,
-      ])) as bigint;
-
-      if (BigInt(sellAmount) > currentAllowance) {
-        console.log(
-          `Current allowance for ${sellToken} is insufficient. Approving Permit2 to spend ${sellToken}...`
-        );
-
-        try {
-          const { request } = await sellTokenContract.simulate.approve([
-            PERMIT2_ADDRESS,
-            maxUint256,
-          ]);
-          console.log("Approving Permit2 to spend sellToken...", request);
-
-          const hash = await sellTokenContract.write.approve([
-            PERMIT2_ADDRESS,
-            maxUint256,
-          ]);
-          console.log("Approved Permit2 to spend sellToken.", hash);
-        } catch (error) {
-          console.error("Error approving Permit2:", error);
-          throw new Error(
-            `Failed to approve Permit2 to spend ${sellToken}: ${
-              error instanceof Error ? error.message : "Unknown error"
-            }`
-          );
-        }
-      } else {
-        console.log(
-          `Allowance for ${sellToken} is already sufficient for Permit2.`
-        );
       }
 
       // Check if the response is successful
@@ -218,17 +168,21 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
 - Exchange Rate: 1 ${sellTokenSymbol} = ${exchangeRate} ${buyTokenSymbol}
 - Estimated Gas: ${data.transaction?.gas?.toLocaleString() || "Unknown"}
 - Gas Price: ${data.transaction?.gasPrice || "Unknown"} wei
-- Sources: ${
-          data.route?.fills
+- Sources: ${data.route?.fills
             ?.map(
               (fill) =>
                 `${fill.source} (${(fill.proportionBps / 100).toFixed(1)}%)`
             )
             .join(", ") || "Unknown"
-        }
+          }
 - Issues Found: ${issuesText}`;
 
-        return output;
+        // Return both the formatted response and the raw quote object
+        return {
+          formatted: output,  // Use the output variable, not formattedResponse
+          _quoteObject: data,
+          toString: function () { return this.formatted; }
+        };
       } catch (error) {
         console.error("Error extracting quote information:", error);
 
@@ -241,8 +195,7 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
     } catch (error) {
       console.error("Error fetching quote:", error);
       throw new Error(
-        `Failed to fetch quote: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to fetch quote: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     } finally {
