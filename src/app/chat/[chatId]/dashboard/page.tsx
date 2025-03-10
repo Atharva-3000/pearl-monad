@@ -275,7 +275,13 @@ export default function Dashboard() {
                             <StatCard title="Total Transactions" value={addressData.summary.totalTransactions.toString()} />
                             <StatCard title="MON Transfers" value={addressData.summary.totalETHTransfers.toString()} />
                             <StatCard title="Gas Paid" value={`${addressData.summary.totalGasPaidFormatted || '0'} MON`} />
-                            <StatCard title="MON Volume In" value={`${addressData.summary.totalEthVolumeIn || '0'} MON`} />
+                            <StatCard
+                                title="Total MON Volume"
+                                value={`${(
+                                    parseFloat(addressData.summary.totalEthVolumeIn || '0') +
+                                    parseFloat(addressData.summary.totalEthVolumeOut || '0')
+                                ).toFixed(6)} MON`}
+                            />
                         </div>
                     </Section>
 
