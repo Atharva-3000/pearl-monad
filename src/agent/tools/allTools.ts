@@ -4,6 +4,7 @@ import { sendTransactionTool } from "./sendTransaction";
 import { fetchPriceTool } from "./fetchToken0x";
 import { fetchQuoteTool } from "./swapQuote0x";
 import { executeSwapTool } from "./swap0x";
+import { deployErc20Tool } from "./deployToken";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ToolConfig<T = any> {
@@ -33,4 +34,5 @@ export const tools: Record<string, ToolConfig> = {
     // == WRITE Tools == \\
     send_transaction: sendTransactionTool,
     execute_swap: executeSwapTool,
+    deploy_erc20: deployErc20Tool,
 };
