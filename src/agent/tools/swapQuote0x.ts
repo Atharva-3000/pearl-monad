@@ -65,8 +65,7 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
 
       // Log which chain we're using
       console.log(
-        `Fetching quote on chain ID: ${chainId} (${
-          chainId === MONAD_TESTNET_CHAIN_ID ? "Monad Testnet" : "Custom Chain"
+        `Fetching quote on chain ID: ${chainId} (${chainId === MONAD_TESTNET_CHAIN_ID ? "Monad Testnet" : "Custom Chain"
         })`
       );
 
@@ -91,12 +90,12 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
       const response = await fetch(url.toString(), { headers });
 
       const rawText = await response.text();
-      console.log("---------Raw Response Text:", rawText);
+      // console.log("---------Raw Response Text:", rawText);
 
       let data;
       try {
         data = JSON.parse(rawText);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         throw new Error(`Failed to parse response as JSON: ${rawText}`);
       }
@@ -169,17 +168,21 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
 - Exchange Rate: 1 ${sellTokenSymbol} = ${exchangeRate} ${buyTokenSymbol}
 - Estimated Gas: ${data.transaction?.gas?.toLocaleString() || "Unknown"}
 - Gas Price: ${data.transaction?.gasPrice || "Unknown"} wei
-- Sources: ${
-          data.route?.fills
+- Sources: ${data.route?.fills
             ?.map(
               (fill) =>
                 `${fill.source} (${(fill.proportionBps / 100).toFixed(1)}%)`
             )
             .join(", ") || "Unknown"
-        }
+          }
 - Issues Found: ${issuesText}`;
 
-        return output;
+        // Return both the formatted response and the raw quote object
+        return {
+          formatted: output,  // Use the output variable, not formattedResponse
+          _quoteObject: data,
+          toString: function () { return this.formatted; }
+        };
       } catch (error) {
         console.error("Error extracting quote information:", error);
 
@@ -192,8 +195,7 @@ export const fetchQuoteTool: ToolConfig<FetchQuoteArgs> = {
     } catch (error) {
       console.error("Error fetching quote:", error);
       throw new Error(
-        `Failed to fetch quote: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to fetch quote: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     } finally {
