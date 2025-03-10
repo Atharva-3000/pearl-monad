@@ -154,18 +154,38 @@ export default function Dashboard() {
     }, [user]);
 
     const filteredTransactions = useMemo(() => {
-        if (filter === 'all') return addressData?.transactions || [];
+        if (!addressData?.transactions || addressData.transactions.length === 0) {
+            return [];
+        }
+
+        // Create a copy of transactions to avoid mutating the original array
+        let sortedTransactions = [...addressData.transactions];
+
+        // Sort transactions by block number (higher numbers are more recent blocks)
+        sortedTransactions.sort((a, b) => {
+            // Primary sort by block number if timestamps are missing
+            return (b.blockNumber || 0) - (a.blockNumber || 0);
+        });
+
+        // Log for debugging
+        console.log("Sorted order by block:", sortedTransactions.map(tx =>
+            `${tx.hash.slice(0, 6)} - Block ${tx.blockNumber}`
+        ));
+
+        // Apply filters after sorting
+        if (filter === 'all') return sortedTransactions;
         if (filter === 'sent') {
-            return addressData?.transactions.filter(tx =>
-                tx.from.toLowerCase() === walletAddress.toLowerCase()
-            ) || [];
+            return sortedTransactions.filter(tx =>
+                tx.from?.toLowerCase() === walletAddress.toLowerCase()
+            );
         }
         if (filter === 'received') {
-            return addressData?.transactions.filter(tx =>
+            return sortedTransactions.filter(tx =>
                 tx.to?.toLowerCase() === walletAddress.toLowerCase()
-            ) || [];
+            );
         }
-        return addressData?.transactions || [];
+
+        return sortedTransactions;
     }, [addressData, filter, walletAddress]);
 
     return (
@@ -291,29 +311,48 @@ export default function Dashboard() {
                                 <div className="flex flex-wrap items-center space-x-2 mb-4">
                                     <div className="text-sm text-gray-600 mr-2">Filter:</div>
                                     <button
-                                        className="px-2 py-1 text-xs rounded-full bg-monad-purple text-white border border-monad-purple"
+                                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${filter === 'all'
+                                                ? 'bg-monad-purple text-white border-monad-purple'
+                                                : 'bg-white text-gray-800 border-gray-200 hover:bg-monad-purple/10'
+                                            }`}
                                         onClick={() => setFilter('all')}
                                     >
                                         All
                                     </button>
                                     <button
-                                        className="px-2 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200 hover:bg-monad-purple/10"
+                                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${filter === 'sent'
+                                                ? 'bg-monad-purple text-white border-monad-purple'
+                                                : 'bg-white text-gray-800 border-gray-200 hover:bg-monad-purple/10'
+                                            }`}
                                         onClick={() => setFilter('sent')}
                                     >
                                         Sent
                                     </button>
                                     <button
-                                        className="px-2 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200 hover:bg-monad-purple/10"
+                                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${filter === 'received'
+                                                ? 'bg-monad-purple text-white border-monad-purple'
+                                                : 'bg-white text-gray-800 border-gray-200 hover:bg-monad-purple/10'
+                                            }`}
                                         onClick={() => setFilter('received')}
                                     >
                                         Received
                                     </button>
                                 </div>
 
+                                {/* Add transaction count info */}
+                                <div className="text-sm text-gray-500 mb-3">
+                                    Found {filteredTransactions.length} transaction(s) to display
+                                </div>
+
                                 <div className="space-y-4">
-                                    {filteredTransactions.slice(0, 10).map((tx, index) => (
-                                        <TransactionItem key={index} tx={tx} walletAddress={walletAddress} />
-                                    ))}
+                                    {filteredTransactions.length > 0 ? (
+                                        // Use first 10 transactions from the already sorted array
+                                        filteredTransactions.slice(0, 10).map((tx, index) => (
+                                            <TransactionItem key={tx.hash || index} tx={tx} walletAddress={walletAddress} />
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500 italic">No transactions found matching filter</p>
+                                    )}
                                     {addressData.transactions.length > 10 && (
                                         <div className="text-center mt-4">
                                             <p className="text-sm text-gray-500">
@@ -327,7 +366,7 @@ export default function Dashboard() {
                                 </div>
                             </>
                         ) : (
-                            <p className="text-gray-500 italic">No transactions found</p>
+                            <p className="text-gray-500 italic">No transactions found for this address. If you just received funds, try clicking &quot;Load Transactions&quot;.</p>
                         )}
                     </Section>
                 </div>
@@ -397,17 +436,31 @@ const TransactionItem = ({ tx, walletAddress }: { tx: AddressData['transactions'
         }
     };
 
-    // Format the date and time
-    const formatDateTime = (timestamp: number) => {
-        const date = new Date(timestamp * 1000);
+    // Format the date and time correctly
+    const formatDateTime = (timestamp: number, blockNumber: number) => {
+        // If we have a valid timestamp
+        if (timestamp && timestamp > 0) {
+            const millisecTimestamp = timestamp * 1000;
+            const date = new Date(millisecTimestamp);
+            return {
+                date: date.toLocaleDateString(),
+                time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+        }
+
+        // Fallback to showing the block number
         return {
-            date: date.toLocaleDateString(),
-            time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            date: `Block #${blockNumber || 'Unknown'}`,
+            time: ''
         };
     };
 
-    // Get relative time (e.g., "2 hours ago")
+    const dateTime = formatDateTime(tx.timestamp, tx.blockNumber);
+
+    // Get relative time with proper timestamp handling
     const getRelativeTime = (timestamp: number) => {
+        if (!timestamp || timestamp === 0) return 'Unknown';
+
         const now = Math.floor(Date.now() / 1000);
         const diff = now - timestamp;
 
@@ -416,12 +469,10 @@ const TransactionItem = ({ tx, walletAddress }: { tx: AddressData['transactions'
         if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
         if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
 
-        // Return formatted date directly instead of calling formatDate again
         const date = new Date(timestamp * 1000);
         return date.toLocaleDateString();
     };
 
-    const dateTime = formatDateTime(tx.timestamp);
     const relativeTime = getRelativeTime(tx.timestamp);
 
     return (

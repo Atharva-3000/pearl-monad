@@ -102,6 +102,31 @@ export async function fetchBlockchainData(address: string) {
           valueFormatted: '0'
         };
 
+        // Find block timestamp from block data and assign to transaction
+        if (res.data.blocks && res.data.blocks.length > 0) {
+          // First try to find by block hash
+          const txBlock = res.data.blocks.find(block => block.hash === tx.blockHash);
+
+          if (txBlock && txBlock.timestamp) {
+            enhancedTx.timestamp = Number(txBlock.timestamp);
+            console.log(`Found timestamp ${txBlock.timestamp} for tx ${tx.hash.slice(0, 6)}`);
+          } else {
+            // Try to find by block number
+            const blockByNumber = res.data.blocks.find(block => block.number === tx.blockNumber);
+
+            if (blockByNumber && blockByNumber.timestamp) {
+              enhancedTx.timestamp = Number(blockByNumber.timestamp);
+              console.log(`Found timestamp by block number for tx ${tx.hash.slice(0, 6)}`);
+            } else {
+              // If no timestamp found, use block number * 100000 as a proxy timestamp
+              // This ensures that higher block numbers (more recent) appear first
+              const proxyTimestamp = tx.blockNumber ? Number(tx.blockNumber) * 100000 : 0;
+              enhancedTx.timestamp = proxyTimestamp;
+              console.log(`Using block number ${tx.blockNumber} as timestamp proxy for tx ${tx.hash.slice(0, 6)}`);
+            }
+          }
+        }
+
         if (tx.gasUsed && tx.effectiveGasPrice) {
           const gasUsed = BigInt(tx.gasUsed);
           const gasPrice = BigInt(tx.effectiveGasPrice);
@@ -184,22 +209,57 @@ export async function fetchBlockchainData(address: string) {
       totalEthVolumeOut: formatEther(total_wei_volume_out),
       scannedBlocks: highestBlockScanned
     },
-    transactions: transactions.map(tx => ({
-      hash: tx.hash,
-      blockNumber: tx.blockNumber || 0,
-      timestamp: tx.timestamp || 0,
-      from: tx.from,
-      to: tx.to,
-      valueFormatted: tx.valueFormatted,
-      gasFeeFormatted: tx.gasFeeFormatted,
-      status: tx.status
-    })),
+    transactions: transactions
+      .map(tx => ({
+        hash: tx.hash,
+        blockNumber: tx.blockNumber || 0,
+        timestamp: tx.timestamp || 0,
+        from: tx.from,
+        to: tx.to,
+        valueFormatted: tx.valueFormatted,
+        gasFeeFormatted: tx.gasFeeFormatted,
+        status: tx.status
+      }))
+      // Add this sorting to ensure newest transactions are returned first
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)),
     ethTransfers: [] as EthTransfer[], // Could be populated from traces if needed
     erc20Transfers: [],
     erc20Approvals: []
   };
 
-  console.log(`Completed blockchain data query for ${targetAddress}`);
-  console.log(`Found ${transactions.length} transactions`);
-  return responseData;
+  // Log what timestamps we have before returning
+  console.log("Transaction timestamps before return:", transactions.map(tx => ({
+    hash: tx.hash ? tx.hash.slice(0, 6) : 'unknown',
+    blockNumber: tx.blockNumber,
+    timestamp: tx.timestamp,
+    date: tx.timestamp ? new Date(tx.timestamp * 1000).toLocaleString() : 'None'
+  })));
+
+  // Sort transactions by timestamp (newest first) or block number as fallback
+  transactions.sort((a, b) => {
+    // Primary sort by timestamp if available
+    if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+    // Fallback to block number
+    if (a.blockNumber && b.blockNumber) return Number(b.blockNumber) - Number(a.blockNumber);
+    return 0;
+  });
+
+  // Return the sorted transactions
+  return {
+    address: targetAddress,
+    summary: {
+      totalTransactions: transactions.length,
+      totalETHTransfers: wei_count_in + wei_count_out,
+      totalERC20Transfers: 0,
+      totalERC20Approvals: 0,
+      totalERC20Tokens: 0,
+      totalGasPaidFormatted: formatEther(total_gas_paid),
+      totalEthVolumeIn: formatEther(total_wei_volume_in),
+      totalEthVolumeOut: formatEther(total_wei_volume_out)
+    },
+    transactions,
+    ethTransfers: [],  // Fill these if you have them
+    erc20Transfers: [],
+    erc20Approvals: []
+  };
 }
