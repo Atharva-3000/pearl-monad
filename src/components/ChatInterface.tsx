@@ -10,6 +10,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { initializeWalletClient } from "../agent/viem/createViemWalletClient";
+import { format } from 'date-fns';
 
 interface Message {
     role: "user" | "assistant";
@@ -68,9 +69,48 @@ export default function ChatInterface() {
         initWallet();
     }, [user?.id]);
 
+    // Add this function to check (but not increment) usage
+    const checkDailyPromptLimit = async (userId: string) => {
+        const today = format(new Date(), 'yyyy-MM-dd');
+
+        // Just check the current count
+        const response = await fetch(`/api/prompt-usage?userId=${userId}&date=${today}`);
+        const data = await response.json();
+
+        if (data.count >= 6) {
+            toast.error('You have reached your daily limit of 6 prompts. Please try again tomorrow.');
+            return false;
+        }
+
+        return true;
+    };
+
+    // Add this function to increment the count after sending a message
+    const incrementPromptUsage = async (userId: string) => {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        await fetch('/api/prompt-usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, date: today })
+        });
+    };
+
+    const handleSendMessage = async () => {
+        if (!user?.id || !await checkDailyPromptLimit(user.id)) {
+            return;
+        }
+
+        // Continue with sending the message...
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || !user?.id) return;
+
+        // Check limit before sending
+        if (!await checkDailyPromptLimit(user.id)) {
+            return;
+        }
 
         const userMessage: Message = { role: 'user', content: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
@@ -81,6 +121,9 @@ export default function ChatInterface() {
         const timeoutId = setTimeout(() => controller.abort(), 55000);
 
         try {
+            // Increment the usage count when actually sending a message
+            await incrementPromptUsage(user.id);
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

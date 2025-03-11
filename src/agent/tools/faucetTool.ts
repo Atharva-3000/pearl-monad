@@ -2,12 +2,18 @@ import { ToolConfig } from "./allTools";
 import { createServerWalletClient, getServerWalletAddress } from "../viem/serverWalletUtils";
 import { parseEther } from "viem";
 import * as dotenv from "dotenv";
+import { PrismaClient } from '@prisma/client';
+import { format, subHours } from 'date-fns';
 
 dotenv.config();
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // Constants
 const MONAD_TESTNET_CHAIN_ID = "10143";
 const MAX_FAUCET_AMOUNT = "0.001"; // 0.2 MONAD per request
+const RATE_LIMIT_HOURS = 24; // Rate limit in hours
 
 // This should be set in your environment variables for security
 const FAUCET_PRIVATE_KEY = process.env.FAUCET_PRIVATE_KEY || "";
@@ -22,7 +28,7 @@ export const faucetTool: ToolConfig<FaucetArgs> = {
         type: "function",
         function: {
             name: "request_funds",
-            description: "Request test MONAD tokens from the faucet (limited to 0.2 MONAD per request)",
+            description: "Request test MONAD tokens from the faucet (limited to 0.2 MONAD per request, once per 24 hours)",
             parameters: {
                 type: "object",
                 properties: {
@@ -42,7 +48,7 @@ export const faucetTool: ToolConfig<FaucetArgs> = {
         console.log("------------------------------");
 
         try {
-            console.log("[1/5] Validating inputs and determining recipient address...");
+            console.log("[1/6] Validating inputs and determining recipient address...");
             const { recipientAddress, privateKey } = args;
             let recipient: string;
 
@@ -59,26 +65,70 @@ export const faucetTool: ToolConfig<FaucetArgs> = {
                 throw new Error("No recipient address provided and no private key available");
             }
 
-            console.log("[2/5] Checking faucet configuration...");
+            // Check rate limit
+            console.log("[2/6] Checking rate limit...");
+            const rateLimitDate = subHours(new Date(), RATE_LIMIT_HOURS);
+            const recentRequest = await prisma.faucetRequest.findFirst({
+                where: {
+                    walletAddress: recipient.toLowerCase(),
+                    timestamp: {
+                        gte: rateLimitDate
+                    }
+                },
+                orderBy: {
+                    timestamp: 'desc'
+                }
+            });
+
+            if (recentRequest) {
+                const lastRequestTime = recentRequest.timestamp;
+                const now = new Date();
+                const hoursElapsed = (now.getTime() - lastRequestTime.getTime()) / (1000 * 60 * 60);
+                const hoursRemaining = RATE_LIMIT_HOURS - hoursElapsed;
+                const timeRemaining = hoursRemaining > 1
+                    ? `${Math.ceil(hoursRemaining)} hours`
+                    : `${Math.ceil(hoursRemaining * 60)} minutes`;
+
+                console.log(`❌ Rate limited: User ${recipient.slice(0, 6)}...${recipient.slice(-4)} requested funds too recently`);
+                return {
+                    status: "RATE_LIMITED",
+                    message: `You can only request funds once every ${RATE_LIMIT_HOURS} hours. Please try again in ${timeRemaining}.`,
+                    toString: function () {
+                        return `⏳ Rate limit reached: You can only request funds once every ${RATE_LIMIT_HOURS} hours.\n\nPlease try again in ${timeRemaining}.`;
+                    }
+                };
+            }
+            console.log("✓ Rate limit check passed");
+
+            console.log("[3/6] Checking faucet configuration...");
             if (!FAUCET_PRIVATE_KEY) {
                 console.log("❌ Faucet private key not found in environment variables");
                 throw new Error("Faucet private key not configured");
             }
 
-            console.log("[3/5] Initializing faucet wallet...");
+            console.log("[4/6] Initializing faucet wallet...");
             // Create wallet client using the faucet private key
             const faucetWallet = createServerWalletClient(FAUCET_PRIVATE_KEY);
             const faucetAddress = getServerWalletAddress(FAUCET_PRIVATE_KEY);
             console.log(`Faucet wallet initialized: ${faucetAddress.slice(0, 6)}...${faucetAddress.slice(-4)}`);
 
-            console.log(`[4/5] Preparing transaction: ${MAX_FAUCET_AMOUNT} MONAD to ${recipient.slice(0, 6)}...${recipient.slice(-4)}`);
+            console.log(`[5/6] Preparing transaction: ${MAX_FAUCET_AMOUNT} MONAD to ${recipient.slice(0, 6)}...${recipient.slice(-4)}`);
             // Send the transaction
             const txHash = await faucetWallet.sendTransaction({
                 to: recipient as `0x${string}`,
                 value: parseEther(MAX_FAUCET_AMOUNT),
             });
 
-            console.log(`[5/5] ✅ Transaction submitted successfully!`);
+            // Record the request in the database
+            console.log("[6/6] Recording request in database...");
+            await prisma.faucetRequest.create({
+                data: {
+                    walletAddress: recipient.toLowerCase(),
+                    timestamp: new Date()
+                }
+            });
+
+            console.log(`✅ Transaction submitted successfully!`);
             console.log(`Amount: ${MAX_FAUCET_AMOUNT} MONAD`);
             console.log(`Recipient: ${recipient}`);
             console.log(`Transaction Hash: ${txHash}`);
@@ -93,7 +143,7 @@ export const faucetTool: ToolConfig<FaucetArgs> = {
                 message: `You received ${MAX_FAUCET_AMOUNT} MONAD from the faucet!`,
                 explorerUrl: `https://testnet.monadexplorer.com/tx/${txHash}`,
                 toString: function () {
-                    return `✅ Success! ${MAX_FAUCET_AMOUNT} MONAD has been sent to your wallet.\n\nTransaction Hash: ${txHash}\n\nView on Explorer: https://testnet.monadexplorer.com/tx/${txHash}`;
+                    return `✅ Success! ${MAX_FAUCET_AMOUNT} MONAD has been sent to your wallet.\n\nTransaction Hash: ${txHash}\n\nView on Explorer: https://testnet.monadexplorer.com/tx/${txHash}\n\nNote: You can request funds again in ${RATE_LIMIT_HOURS} hours.`;
                 }
             };
 
