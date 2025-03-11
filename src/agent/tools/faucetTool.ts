@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 // Constants
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MONAD_TESTNET_CHAIN_ID = "10143";
-const MAX_FAUCET_AMOUNT = "0.5"; // 0.2 MONAD per request
+const MAX_FAUCET_AMOUNT = "0.2"; // 0.2 MONAD per request
 const RATE_LIMIT_HOURS = 24; // Rate limit in hours
 
 // This should be set in your environment variables for security
