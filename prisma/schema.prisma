@@ -14,11 +14,12 @@ datasource db {
 }
 
 model User {
-  id        String   @id // <-- Added: stores the wallet details JSON
-  privateKey String
-  email     String?
-  chats     Chat[]
-  createdAt DateTime @default(now())
+  id               String             @id // <-- Added: stores the wallet details JSON
+  privateKey       String
+  email            String?
+  chats            Chat[]
+  createdAt        DateTime           @default(now())
+  DailyPromptUsage DailyPromptUsage[]
 }
 
 model Chat {
@@ -36,8 +37,29 @@ model Message {
   chatId    String
   chat      Chat     @relation(fields: [chatId], references: [id])
   content   String
-  sender    String   // "user" or "assistant"
+  sender    String // "user" or "assistant"
   timestamp DateTime @default(now())
 
   @@index([chatId])
+}
+
+// Add these new models for rate limiting
+model FaucetRequest {
+  id            String   @id @default(cuid())
+  walletAddress String // The wallet address that requested funds
+  timestamp     DateTime @default(now())
+
+  @@index([walletAddress])
+}
+
+model DailyPromptUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      String // Stored as YYYY-MM-DD
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date]) // Ensure only one record per user per day
+  @@index([userId, date])
 }

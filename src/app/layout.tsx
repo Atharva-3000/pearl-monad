@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Ubuntu, Josefin_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Ubuntu } from "next/font/google";
 import "./globals.css";
 import {Toaster} from "react-hot-toast"
 import '@mantine/core/styles.css';
@@ -24,7 +24,8 @@ const ubuntu = Ubuntu({
   display: 'swap',
 });
 
-const josefinSans = Josefin_Sans({
+const josefinSans = Ubuntu({
+  weight: ['300', '400', '500', '700'],
   subsets: ['latin'],
   display: 'swap',
 });

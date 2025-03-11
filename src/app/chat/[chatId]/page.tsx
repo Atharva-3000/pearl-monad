@@ -59,7 +59,20 @@ export default function ChatPage() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => router.push(`/chat/${params?.chatId}/dashboard`)}
+                  onClick={() => {
+                    const toastId = "dashboard-loading";
+                    toast.loading("Loading dashboard...", { id: toastId });
+
+                    // Give a small delay before navigation to show the toast
+                    setTimeout(() => {
+                      router.push(`/chat/${params?.chatId}/dashboard`);
+
+                      // Dismiss the toast after a reasonable time for the navigation to complete
+                      setTimeout(() => {
+                        toast.dismiss(toastId);
+                      }, 1000);
+                    }, 300);
+                  }}
                   className="bg-black/80 hover:bg-white hover:text-black text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2"
                 >
                   Dashboard

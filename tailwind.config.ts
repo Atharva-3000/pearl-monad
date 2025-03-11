@@ -138,7 +138,7 @@ module.exports = {
     				'var(--font-ubuntu)'
     			],
     			josefin: [
-    				'var(--font-josefin-sans)'
+    				'var(--font-ubuntu)'
     			]
     		}
     	},
