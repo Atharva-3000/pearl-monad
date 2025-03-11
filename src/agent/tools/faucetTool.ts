@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Constants
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MONAD_TESTNET_CHAIN_ID = "10143";
 const MAX_FAUCET_AMOUNT = "0.001"; // 0.2 MONAD per request
 

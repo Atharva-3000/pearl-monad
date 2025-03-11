@@ -5,7 +5,6 @@ import { fetchPriceTool } from "./fetchToken0x";
 import { fetchQuoteTool } from "./swapQuote0x";
 import { executeSwapTool } from "./swap0x";
 import { faucetTool } from "./faucetTool";
-import { request } from "http";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ToolConfig<T = any> {
