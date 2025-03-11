@@ -47,7 +47,7 @@
   }
 
   .tagline {
-    @apply font-josefin;
+    @apply font-ubuntu;
   }
   :root {
     --background: 0 0% 100%;
