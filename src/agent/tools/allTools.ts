@@ -34,5 +34,5 @@ export const tools: Record<string, ToolConfig> = {
     // == WRITE Tools == \\
     send_transaction: sendTransactionTool,
     execute_swap: executeSwapTool,
-    request_funds: faucetTool
+    request_funds: faucetTool,
 };

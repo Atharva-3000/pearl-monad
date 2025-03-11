@@ -95,6 +95,7 @@ export default function ChatInterface() {
         });
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleSendMessage = async () => {
         if (!user?.id || !await checkDailyPromptLimit(user.id)) {
             return;
