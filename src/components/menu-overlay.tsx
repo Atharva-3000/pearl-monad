@@ -8,7 +8,8 @@ type MenuOverlayProps = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
-    const links = ['Home', 'Features', 'Why', 'Tools', 'Footer'];
+    // Added "Roadmap" to the navigation links, right before "Footer"
+    const links = ['Home', 'Features', 'Why', 'Tools', 'Roadmap', 'Footer'];
 
     const overlayVariants = {
         hidden: { y: "-100%" },
