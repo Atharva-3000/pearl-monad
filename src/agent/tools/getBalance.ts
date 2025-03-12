@@ -90,6 +90,11 @@ Available Balances:
 - MON: ${balances.NATIVE} MON (Native token)
 - WMON: ${balances.wMON} WMON (Wrapped Monad)
 - USDC: ${balances.usdc} USDC (USD Coin)
+- USDT: ${balances.usdt} USDT (Tether)
+- wETH: ${balances.wETH} wETH (Wrapped Ether)
+- wBTC: ${balances.wBTC} wBTC (Wrapped Bitcoin)
+- wSOL: ${balances.wSOL} wSOL (Wrapped Solana)
+-gMON: ${balances.gMON} gMON (Governance Token)
       `.trim();
       
       return formattedResponse;
