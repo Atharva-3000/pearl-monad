@@ -6,6 +6,7 @@ import wormhole from "../../public/wormhole.svg";
 import monad from "../../public/monad.svg";
 import xblack from "../../public/Powered by 0x - Black.png"
 import privy from "../../public/privy.png"
+import envio from "../../public/envio.png"
 const logos = [
   {
     img: nillion.src,
@@ -21,6 +22,9 @@ const logos = [
   },
   {
     img:privy,
+  },
+  {
+    img:envio,
   }
 ];
 

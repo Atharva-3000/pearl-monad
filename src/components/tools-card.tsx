@@ -6,6 +6,7 @@ import { AlignVerticalDistributeCenter, Anchor, Atom, AudioWaveform, BringToFron
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { SyncLoader } from "react-spinners";
 
 type ToolsCardProps = {
   isMobile?: boolean;
@@ -18,6 +19,7 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
   const router = useRouter();
   const [justLoggedIn, setJustLoggedIn] = useState(false);
   const userCreatedRef = useRef(false);
+  const [loadingChat, setLoadingChat] = useState(false);
 
   const handleStartChat = async () => {
     if (!user?.id) {
@@ -25,9 +27,16 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
       return;
     }
 
-    const chatId = generateChatId();
-
     try {
+      // Create a unique toast ID for this navigation
+      const toastId = "chat-loading";
+
+      // Show loading toast
+      toast.loading("Creating new chat...", { id: toastId });
+
+      setLoadingChat(true);
+      const chatId = generateChatId();
+
       // Create chat in database first
       const response = await fetch('/api/chats', {
         method: 'POST',
@@ -45,11 +54,19 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
 
       // Navigate to new chat after successful creation
       router.push(`/chat/${chatId}`);
-      toast.success('Started new chat!');
+
+      // Update toast to success message
+      // The slight delay helps ensure the toast is visible during navigation
+      setTimeout(() => {
+        toast.success("New chat started!", { id: toastId });
+      }, 300);
+
     } catch (error) {
       toast.error('Failed to create new chat');
       console.error('Error creating chat:', error);
+      setLoadingChat(false); // Reset loading state on error
     }
+    // Note: We don't set loadingChat to false on success because we're navigating away
   };
 
   useEffect(() => {
@@ -89,6 +106,7 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
       // If it's the first successful login and we want to redirect to chat
       if (justLoggedIn) {
         setJustLoggedIn(false);
+        setLoadingChat(true); // Set loading state before navigation
         const chatId = generateChatId();
         router.push(`/chat/${chatId}`);
       }
@@ -132,9 +150,16 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
           <button
             className={`btn-glass border border-black bg-monad-black text-white font-medium uppercase flex items-center gap-2 justify-center hover:text-monad-offwhite hover:bg-monad-purple transition-all duration-200 group py-2.5 ${isMobile ? 'px-4' : ''}`}
             onClick={handleStartChat}
+            disabled={loadingChat}
           >
-            <span>Chat</span>
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            {loadingChat ? (
+              <SyncLoader color="#ffffff" size={5} speedMultiplier={0.7} margin={3} />
+            ) : (
+              <>
+                <span>Chat</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+              </>
+            )}
           </button>
         ) : (
           <button
