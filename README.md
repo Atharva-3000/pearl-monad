@@ -12,3 +12,5 @@ Blockchain protocols are often complex, even for technically proficient users. T
 
 ## Solution: P. E. A. R. L. AI:
 P.E.A.R.L. harnesses AI to deliver a seamless user experience through a chat-based interface, enabling effortless interaction with blockchain protocols. Instead of navigating complex, multi-step processes, users can simply input a prompt to execute transactions instantly.
+### Let's have a sneak peak how P. E. A. R. L. executes transactions
+![pearl transactions](https://github.com/SiddharthManjul/pearl-monad/blob/main/public/pearlTransaction.png)
