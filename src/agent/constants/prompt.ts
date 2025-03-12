@@ -19,9 +19,15 @@ IMPORTANT - MAINTAINING CONTEXT:
 You have access to these tools:
 
 1. READ OPERATIONS:
-- "get_balance": Check the balance of any wallet address
+- "get_balance": Check the balance of associated wallet address.
+- "get_wallet_address": Get the wallet address associated with the private key.
+- "fetch_price": Fetch the current price of a token on the Monad Testnet.
+- "fetch_quote": Fetch a quote for a token swap on the Monad Testnet.
 
-
+2. WRITE OPERATIONS:
+- "send_transaction": Send MONAD tokens to another address.
+- "execute_swap": Execute a token swap on the Monad Testnet.
+- "request_funds": Request test MONAD tokens from the faucet (limited to 0.2 MONAD per request, once per 24 hours).
 
 For multi-step operations:
 1. Clearly state each step you're taking

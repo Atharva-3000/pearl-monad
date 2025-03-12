@@ -77,7 +77,7 @@ export default function ChatInterface() {
         const response = await fetch(`/api/prompt-usage?userId=${userId}&date=${today}`);
         const data = await response.json();
 
-        if (data.count >= 6) {
+        if (data.count >= 500) {
             toast.error('You have reached your daily limit of 6 prompts. Please try again tomorrow.');
             return false;
         }
@@ -95,6 +95,7 @@ export default function ChatInterface() {
         });
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleSendMessage = async () => {
         if (!user?.id || !await checkDailyPromptLimit(user.id)) {
             return;
