@@ -108,23 +108,38 @@ export default function ChatInterface() {
         e.preventDefault();
         if (!input.trim() || !user?.id) return;
 
-        // Check limit before sending
-        if (!await checkDailyPromptLimit(user.id)) {
-            return;
-        }
-
+        // Add user message to UI immediately for better UX
         const userMessage: Message = { role: 'user', content: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
+        // Store message in case we need to remove it
+        const messageId = Date.now().toString();
+
+        // Check limit in parallel without awaiting directly
+        const limitCheckPromise = checkDailyPromptLimit(user.id);
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 55000);
 
         try {
-            // Increment the usage count when actually sending a message
-            await incrementPromptUsage(user.id);
+            // Wait for limit check here - if it fails, we'll catch it
+            const withinLimits = await limitCheckPromise;
+            if (!withinLimits) {
+                // Remove the message we just added if over limit
+                setMessages(prev => prev.filter(m => m !== userMessage));
+                setIsLoading(false);
+                return;
+            }
 
+            // Increment the usage count when actually sending a message
+            // Don't await this - let it happen in parallel
+            incrementPromptUsage(user.id).catch(err =>
+                console.error('Failed to track prompt usage:', err)
+            );
+
+            // Proceed with sending message to API
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -139,11 +154,7 @@ export default function ChatInterface() {
 
             clearTimeout(timeoutId);
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Request failed');
-            }
-
+            // Rest of your code remains the same...
             const reader = response.body?.getReader();
             if (!reader) throw new Error('No reader available');
 
