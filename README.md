@@ -1,37 +1,14 @@
 
 ![wall pearl](https://github.com/user-attachments/assets/0aaf3ac9-c0a9-4b38-b42c-d73622632f78)
 
-## Getting Started
+# P. E. A. R. L.?
+P. E. A. R. L. stands for <strong>Parallel Enhanced AI for Rapid-Ledger processing</strong>.
+P. E. A. R. L. is a cross technology product leveraging efficiencies of both Artificial Intelligence & Blockchain to provide a Safe, Secure and the best User Experience while interacting with Decentralized Web.
 
-First, run the development server:
+## Problem Gravity:
+Blockchain protocols are often complex, even for technically proficient users. The process of selecting and downloading a wallet, configuring it, and executing a blockchain transaction may seem straightforward but involves multiple steps, creating friction in user onboarding. User Onboarding is probably the most crucial thing for any industry to survive & thrive. Within Blockchain, everyone is trying to onboard user & create mass adoption but most of them are failing. Multiple reasons are there, but the complex user experience is one of the biggest obstacle in terms of user onboarding.
+### Let's break down the problem a bit:
+![problem statement](https://github.com/SiddharthManjul/pearl-monad/blob/main/public/problemStmt.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Solution: P. E. A. R. L. AI:
+P.E.A.R.L. harnesses AI to deliver a seamless user experience through a chat-based interface, enabling effortless interaction with blockchain protocols. Instead of navigating complex, multi-step processes, users can simply input a prompt to execute transactions instantly.

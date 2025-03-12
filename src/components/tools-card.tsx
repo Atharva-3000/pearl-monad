@@ -142,7 +142,7 @@ export function ToolsCard({ isMobile = false }: ToolsCardProps) {
             disabled={disableLogin}
             onClick={handleLogin}
           >
-            <span>Begin</span>
+            <span>Login</span>
             <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </button>
         )}
