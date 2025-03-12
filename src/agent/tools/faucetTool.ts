@@ -3,6 +3,7 @@ import { createServerWalletClient, getServerWalletAddress } from "../viem/server
 import { parseEther } from "viem";
 import * as dotenv from "dotenv";
 import { PrismaClient } from '@prisma/client';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { format, subHours } from 'date-fns';
 
 dotenv.config();
@@ -11,8 +12,9 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 // Constants
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MONAD_TESTNET_CHAIN_ID = "10143";
-const MAX_FAUCET_AMOUNT = "0.001"; // 0.2 MONAD per request
+const MAX_FAUCET_AMOUNT = "0.2"; // 0.2 MONAD per request
 const RATE_LIMIT_HOURS = 24; // Rate limit in hours
 
 // This should be set in your environment variables for security
